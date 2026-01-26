@@ -1,0 +1,328 @@
+﻿using System;
+using System.Drawing;
+using System.Windows.Forms;
+
+namespace WinFormsApp17
+{
+    public enum TargetType
+    {
+        None = 0,
+        Site,
+        Road,
+        Building
+    }
+
+    public enum MoveType
+    {
+        None = 0,
+        Draw = 1,
+        Erase = 2,
+        Parallel = 3,
+        Corner = 4,
+        Dimension = 5,
+        DrawCircle = 6,
+        Trim = 7,
+        Rotate,
+    }
+    //===============================
+    //   Form2 クラス
+    //===============================
+    public partial class Form2 : Form
+    {
+        private MoveType moveType;
+        private Button? activeButton;
+        private TargetType currentTarget = TargetType.None;
+        private Button? activeTargetButton;
+
+        public event Action? ModeChanged;
+        public event Action? PrintClicked;
+        public event Action<TargetType>? TargetChanged;
+
+        public decimal GetOffsetDistance { get; private set; } = 0;
+
+        public MoveType GetMoveType() => moveType;
+
+        public Form2()
+        {
+            InitializeComponent();
+            // 今フォーカスをもっているコントロールを解除する
+            // this:Form ActiveContrl:WinFormsがもっているプロパティ
+            this.Shown += (s, e) => this.ActiveControl = null;
+            this.AutoScaleMode = AutoScaleMode.Font;
+            this.moveType = MoveType.None;
+            this.TopLevel = false;
+            this.FormBorderStyle = FormBorderStyle.None;
+            this.Dock = DockStyle.None;
+            SetToolButtonsInitialColor();
+           //SetToolButtonsEnabled(false);
+        }
+
+        private void Form2_Load(object sender, EventArgs e)
+        {
+        }
+        private void SetToolButtonsInitialColor()
+        {
+            Color c = SystemColors.ControlLight;
+
+            button1.ForeColor = c; // 線
+            button2.ForeColor = c; // 消す
+            button5.ForeColor = c; // 複線
+            button6.ForeColor = c; // コーナ
+            button8.ForeColor = c; // 寸法
+            button12.ForeColor = c; // 円
+            button13.ForeColor = c; // 伸縮
+            button14.ForeColor = c; // 回転
+        }
+        private void SetToolButtonsNormalColor()
+        {
+            Color c = SystemColors.ControlText;
+
+            button1.ForeColor = c;
+            button2.ForeColor = c;
+            button5.ForeColor = c;
+            button6.ForeColor = c;
+            button8.ForeColor = c;
+            button12.ForeColor = c;
+            button13.ForeColor = c;
+            button14.ForeColor = c;
+        }
+
+
+        // private void SetToolButtonsEnabled(bool enabled)
+        //  {
+        //button.Enabled = false; 操作不可　true 操作可能
+        //     button1.Enabled = enabled;   // Draw   enabled:有効
+        //     button2.Enabled = enabled;   // Erase
+        //     button5.Enabled = enabled;   // Parallel
+        //      button6.Enabled = enabled;   // Corner
+        //     button8.Enabled = enabled;   // Dimension
+        //     button12.Enabled = enabled;  // DrawCircle
+        //      button13.Enabled = enabled;  // Trim
+        //      button14.Enabled = enabled;  // Rotate
+        //   }
+        private void SetActiveButton(Button btn)
+        {
+            
+            if (activeButton != null)
+            {
+                activeButton.BackColor = SystemColors.Control;
+                activeButton.ForeColor = SystemColors.ControlText;
+            }
+
+            activeButton = btn;
+            activeButton.BackColor = Color.DodgerBlue;
+            activeButton.ForeColor = Color.White;
+
+            if (btn == button9 || btn == button10 || btn == button11)
+            {
+                if (activeTargetButton != null && activeTargetButton != btn)
+                {
+                    activeTargetButton.BackColor = SystemColors.Control;
+                    activeTargetButton.ForeColor = SystemColors.ControlText;
+                }
+                activeTargetButton = btn;
+            }
+            else
+            {
+                if (activeTargetButton != null)
+                {
+                    activeTargetButton.BackColor = Color.DodgerBlue;
+                    activeTargetButton.ForeColor = Color.White;
+                }
+            }
+        }
+
+        private bool IsTargetSelected()
+        {
+            return currentTarget != TargetType.None;
+        }
+
+        public TargetType GetCurrentTarget()
+        {
+            return currentTarget;
+        }
+
+
+        private void Button1_Click(object sender, EventArgs e)
+        {
+            if (!IsTargetSelected()) return;
+
+            moveType = MoveType.Draw;
+            SetActiveButton((Button)sender);
+            ModeChanged?.Invoke();
+        }
+
+        private void Button2_Click(object sender, EventArgs e)
+        {
+            if (!IsTargetSelected()) return;
+
+            moveType = MoveType.Erase;
+            SetActiveButton((Button)sender);
+            ModeChanged?.Invoke();
+        }
+
+        public event Action? SaveClicked;
+        private void Button3_Click(object sender, EventArgs e)
+        {
+            SetActiveButton((Button)sender);
+            ModeChanged?.Invoke();
+            SaveClicked?.Invoke();
+        }
+
+        public event Action? LoadClicked;
+        private void Button4_Click(object sender, EventArgs e)
+        {
+            SetActiveButton((Button)sender);
+            ModeChanged?.Invoke();
+            LoadClicked?.Invoke();
+        }
+
+        private void Button5_Click(object sender, EventArgs e)
+        {
+            if (!IsTargetSelected()) return;
+
+            SetActiveButton((Button)sender);
+            ModeChanged?.Invoke();
+
+            using (Form3 f3 = new Form3())
+            {
+                if (f3.ShowDialog() == DialogResult.OK)
+                {
+                    GetOffsetDistance = f3.OffsetValue;
+                    moveType = MoveType.Parallel;
+                    ModeChanged?.Invoke();
+                    return;
+                }
+            }
+            moveType = MoveType.Draw;
+            ModeChanged?.Invoke();
+        }
+
+        private void Button6_Click(object sender, EventArgs e)
+        {
+            if (!IsTargetSelected()) return;
+
+            moveType = MoveType.Corner;
+            SetActiveButton((Button)sender);
+            ModeChanged?.Invoke();
+        }
+
+        private void Button7_Click(object sender, EventArgs e)
+        {
+            SetActiveButton((Button)sender);
+            PrintClicked?.Invoke();
+        }
+
+        private void Button8_Click(object sender, EventArgs e)
+        {
+            if (!IsTargetSelected()) return;
+
+            moveType = MoveType.Dimension;
+            SetActiveButton((Button)sender);
+            ModeChanged?.Invoke();
+        }
+        private void Button12_Click(object sender, EventArgs e)
+        {
+            if (!IsTargetSelected()) return;
+
+            moveType = MoveType.DrawCircle;
+            SetActiveButton((Button)sender);
+            ModeChanged?.Invoke();
+        }
+        private void Button13_Click(object sender, EventArgs e)
+        {
+            if (!IsTargetSelected()) return;
+
+            moveType = MoveType.Trim;
+            SetActiveButton((Button)sender);
+            ModeChanged?.Invoke();
+        }
+
+        private void Button14_Click(object sender, EventArgs e)
+        {
+            if (!IsTargetSelected()) return;
+
+
+
+            moveType = MoveType.Rotate;     //回転
+            SetActiveButton((Button)sender);
+            ModeChanged?.Invoke();
+        }
+
+
+        //---------カテゴリ-------------------
+
+        private void button9_Click(object sender, EventArgs e)
+        {
+            currentTarget = TargetType.Site;
+            SetActiveButton((Button)sender);
+            SetToolButtonsNormalColor();
+            //SetToolButtonsEnabled(true);
+            SetActiveButton(button1);
+
+            moveType = MoveType.Draw;
+            TargetChanged?.Invoke(currentTarget);
+            ModeChanged?.Invoke();
+        }
+
+        private void button10_Click(object sender, EventArgs e)
+        {
+            currentTarget = TargetType.Road;
+            SetActiveButton((Button)sender);
+            SetToolButtonsNormalColor();
+            //SetToolButtonsEnabled(true);
+            SetActiveButton(button1);
+
+            moveType = MoveType.Draw;
+            TargetChanged?.Invoke(currentTarget);
+            ModeChanged?.Invoke();
+        }
+
+        private void button11_Click(object sender, EventArgs e)
+        {
+            currentTarget = TargetType.Building;
+            SetActiveButton((Button)sender);
+            SetToolButtonsNormalColor();
+            //SetToolButtonsEnabled(true);
+            SetActiveButton(button1);
+
+            moveType = MoveType.Draw;
+            TargetChanged?.Invoke(currentTarget);
+            ModeChanged?.Invoke();
+        }
+
+        public void SelectDrawMode()
+        {
+            button1.PerformClick();
+        }
+
+        public void SelectEraseMode()
+        {
+            button2.PerformClick();
+        }
+
+        public void SelectParallelMode()
+        {
+            button5.PerformClick();
+        }
+
+        public void SelectCornerMode()
+        {
+            button6.PerformClick();
+        }
+
+        public void SelectDimensionMode()
+        {
+            button8.PerformClick();
+        }
+        public void SelectCircleMode()
+        {
+            button12.PerformClick();
+        }
+        public void SelectTrimMode()
+        {
+            button13.PerformClick();
+        }
+
+    }
+}
