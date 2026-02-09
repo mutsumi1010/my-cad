@@ -27,7 +27,7 @@ namespace WinFormsApp17
 
         private void label1_Click(object sender, EventArgs e)
         {
-
+            // 自動生成
         }
 
         private void button1_Click(object sender, EventArgs e)

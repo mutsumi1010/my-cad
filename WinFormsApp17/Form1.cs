@@ -82,8 +82,6 @@ namespace WinFormsApp17
             form2.Location = new Point(10, 10);
             this.form2.Show();
 
-
-
             this.siteDataList = new SiteDataList();
             this.roadDataList = new RoadDataList();
             this.buildingDataList = new BuildingDataList();
@@ -315,12 +313,23 @@ namespace WinFormsApp17
                     world = snappedDec; // 取れた端点を中心にする
                }
 
-                // 中心点をセット 右クリックならスナップ点 左クリックならそのままの点
-                pendingCircleCenter = world;
-                // 円作成条件をチェック（半径が既に入っていればここで作られる）
-                TryCreateCircle();
+                if (circleForm == null)
+                    return;
 
-                Invalidate();   // 仮円プレビュー用（今はプレビュー無くてもOK）
+                if (!circleForm.TryGetRadius(out var radius))
+                    return;
+
+                if (radius <= 0)
+                    return;
+
+                circleManager.AddCircle(
+                    world,
+                    radius,
+                    lineManager.TargetM
+                );
+
+                circleForm.ResetForNextCircle();
+                Invalidate();
                 return;
             }
 
@@ -629,7 +638,7 @@ namespace WinFormsApp17
                 if (circleForm == null || circleForm.IsDisposed)
                 {
                     circleForm = new Form4();
-                    circleForm.RadiusEntered += OnRadiusEntered;
+                   // circleForm.RadiusEntered += OnRadiusEntered;
                     //  Form1 の子として追加（※TopLevel=false前提）
                     this.Controls.Add(circleForm);
                     //  位置指定：Form2 の右・上端揃え
@@ -699,27 +708,27 @@ namespace WinFormsApp17
         //=========================
         //  Form4から半径をうけとる 　  
         //=========================
-        private void OnRadiusEntered(decimal radius)
-        {
-            pendingCircleRadius = radius;
-            TryCreateCircle();
-        }
+       // private void OnRadiusEntered(decimal radius)
+      //  {
+      //      pendingCircleRadius = radius;
+      //      TryCreateCircle();
+      //  }
 
-        private void TryCreateCircle()
-        {
-            Debug.WriteLine("TryCreatecircle入りました");
-            if (pendingCircleCenter.HasValue && pendingCircleRadius.HasValue)
-            {
-                circleManager.AddCircle(
-                    pendingCircleCenter.Value,
-                    pendingCircleRadius.Value,
-                    lineManager.TargetM);
+      //  private void TryCreateCircle()
+       // {
+      //      Debug.WriteLine("TryCreatecircle入りました");
+      //      if (pendingCircleCenter.HasValue && pendingCircleRadius.HasValue)
+      //      {
+      //          circleManager.AddCircle(
+     //               pendingCircleCenter.Value,
+     //               pendingCircleRadius.Value,
+     //               lineManager.TargetM);
 
-                pendingCircleCenter = null;
+      //          pendingCircleCenter = null;
 
-                Invalidate();
-            }
-        }
+      //          Invalidate();
+       //     }
+      //  }
 
         //=======================
         //  法線オフセット関数  ParallelManagerへ移動  

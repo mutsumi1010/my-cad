@@ -11,6 +11,8 @@ namespace WinFormsApp17
         public Form3()
         {
             InitializeComponent();
+            this.AcceptButton = button1;  // OKをエンターで
+            this.CancelButton = button2;　// キャンセルはESC
         }
 
         private void button1_Click(object sender, EventArgs e)
