@@ -4,16 +4,18 @@
     {
         private readonly LineManager lineManager;
         private readonly List<Dimension> dimFile;
+        private readonly float scalef;
 
 
         // Undo 履歴（最大5）
         private Stack<(int index, PointDec start, PointDec end)> history
             = new Stack<(int, PointDec, PointDec)>(5);
 
-        public EraseManager(LineManager manager, List<Dimension>dimFile)
+        public EraseManager(LineManager manager, List<Dimension>dimFile, float scalef)
         {
             this.lineManager = manager;
             this.dimFile = dimFile;
+            this.scalef = scalef;
         }
 
         //-------------------------------------
@@ -24,6 +26,7 @@
             // ==========================
             // ① 通常線の消去（従来どおり）
             // ==========================
+            float pickTol = 18f / Math.Max(scalef, 0.0001f);  // 画面上12pxぶん
             float minDist = float.MaxValue;
             int eraseIndex = -1;
 
@@ -36,7 +39,7 @@
                     l.end.ToPointF()
                 );
 
-                if (d < 200 && d < minDist)
+                if (d < pickTol && d < minDist)
                 {
                     minDist = d;
                     eraseIndex = i;
@@ -76,7 +79,7 @@
                     d.Sen2.ToPointF()
                 );
 
-                if (dist < 200)
+                if (dist < pickTol)
                 {
                     dimFile.RemoveAt(i);
                     return true;

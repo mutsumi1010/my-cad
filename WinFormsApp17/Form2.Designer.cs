@@ -136,7 +136,7 @@
             // button9
             // 
             button9.Font = new Font("Yu Gothic UI", 12.5F, FontStyle.Regular, GraphicsUnit.Point, 128);
-            button9.Location = new Point(12, 12);
+            button9.Location = new Point(12, 36);
             button9.Name = "button9";
             button9.Size = new Size(94, 38);
             button9.TabIndex = 0;
@@ -147,7 +147,7 @@
             // button10
             // 
             button10.Font = new Font("Yu Gothic UI", 12.5F, FontStyle.Regular, GraphicsUnit.Point, 128);
-            button10.Location = new Point(12, 56);
+            button10.Location = new Point(12, 80);
             button10.Name = "button10";
             button10.Size = new Size(94, 38);
             button10.TabIndex = 0;
@@ -158,7 +158,7 @@
             // button11
             // 
             button11.Font = new Font("Yu Gothic UI", 12.5F, FontStyle.Regular, GraphicsUnit.Point, 128);
-            button11.Location = new Point(12, 100);
+            button11.Location = new Point(12, 124);
             button11.Name = "button11";
             button11.Size = new Size(94, 38);
             button11.TabIndex = 0;
@@ -191,7 +191,6 @@
             // button14
             // 
             button14.Font = new Font("Yu Gothic UI", 12.5F, FontStyle.Regular, GraphicsUnit.Point, 128);
-            //button14.ForeColor = SystemColors.ControlLight;
             button14.Location = new Point(12, 510);
             button14.Name = "button14";
             button14.Size = new Size(70, 40);

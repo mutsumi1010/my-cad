@@ -42,6 +42,9 @@ namespace WinFormsApp17
 
         public MoveType GetMoveType() => moveType;
 
+        //===============================
+        //   コンストラクタ
+        //===============================
         public Form2()
         {
             InitializeComponent();
@@ -146,6 +149,7 @@ namespace WinFormsApp17
         private void Button1_Click(object sender, EventArgs e)
         {
             if (!IsTargetSelected()) return;
+            if (currentTarget == TargetType.Road) return;
 
             moveType = MoveType.Draw;
             SetActiveButton((Button)sender);
@@ -155,6 +159,7 @@ namespace WinFormsApp17
         private void Button2_Click(object sender, EventArgs e)
         {
             if (!IsTargetSelected()) return;
+            if (currentTarget == TargetType.Road) return;
 
             moveType = MoveType.Erase;
             SetActiveButton((Button)sender);
@@ -180,6 +185,7 @@ namespace WinFormsApp17
         private void Button5_Click(object sender, EventArgs e)
         {
             if (!IsTargetSelected()) return;
+            if (currentTarget == TargetType.Road) return;
 
             SetActiveButton((Button)sender);
             ModeChanged?.Invoke();
@@ -201,6 +207,7 @@ namespace WinFormsApp17
         private void Button6_Click(object sender, EventArgs e)
         {
             if (!IsTargetSelected()) return;
+            if (currentTarget == TargetType.Road) return;
 
             moveType = MoveType.Corner;
             SetActiveButton((Button)sender);
@@ -216,6 +223,7 @@ namespace WinFormsApp17
         private void Button8_Click(object sender, EventArgs e)
         {
             if (!IsTargetSelected()) return;
+            if (currentTarget == TargetType.Road) return;
 
             moveType = MoveType.Dimension;
             SetActiveButton((Button)sender);
@@ -224,6 +232,7 @@ namespace WinFormsApp17
         private void Button12_Click(object sender, EventArgs e)
         {
             if (!IsTargetSelected()) return;
+            if (currentTarget == TargetType.Road) return;
 
             moveType = MoveType.DrawCircle;
             SetActiveButton((Button)sender);
@@ -232,6 +241,7 @@ namespace WinFormsApp17
         private void Button13_Click(object sender, EventArgs e)
         {
             if (!IsTargetSelected()) return;
+            if (currentTarget == TargetType.Road) return;
 
             moveType = MoveType.Trim;
             SetActiveButton((Button)sender);
@@ -241,8 +251,7 @@ namespace WinFormsApp17
         private void Button14_Click(object sender, EventArgs e)
         {
             if (!IsTargetSelected()) return;
-
-
+            if (currentTarget == TargetType.Road) return;
 
             moveType = MoveType.Rotate;     //回転
             SetActiveButton((Button)sender);
@@ -267,13 +276,14 @@ namespace WinFormsApp17
 
         private void button10_Click(object sender, EventArgs e)
         {
-            currentTarget = TargetType.Road;
+            currentTarget = TargetType.Road;     // 道路
             SetActiveButton((Button)sender);
-            SetToolButtonsNormalColor();
+            //SetToolButtonsNormalColor();
             //SetToolButtonsEnabled(true);
-            SetActiveButton(button1);
+            SetToolButtonsInitialColor();
+            //SetActiveButton(button1);
 
-            moveType = MoveType.Draw;
+            moveType = MoveType.None;
             TargetChanged?.Invoke(currentTarget);
             ModeChanged?.Invoke();
         }

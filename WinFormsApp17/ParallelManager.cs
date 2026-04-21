@@ -7,7 +7,8 @@ namespace WinFormsApp17
     public class ParallelManager
     {
         private LineManager lineManager;
-
+        private Func<float> getScale;
+        
         // ===== Parallel 状態 =====
         public int SelectedIndex { get; private set; } = -1;
         public bool IsCopyPreview { get; private set; } = false;
@@ -16,14 +17,16 @@ namespace WinFormsApp17
         private PointDec dragStartPointD;
         private decimal offsetDistance = 0m;
 
-        private readonly decimal scaledec;  //今は定数
+        //private readonly decimal scaledec;  //今は定数
 
-        public ParallelManager(LineManager manager, decimal scaleDec)
+        // ===== コンストラクタ =====
+        public ParallelManager(LineManager manager, Func<float> getScale)
         {
             this.lineManager = manager;
-            this.scaledec = scaleDec;
+            this.getScale = getScale;
         }
 
+        // ===== オフセット距離セット メソッド =====
         public void SetOffsetDistance(decimal dist)
         {
             this.offsetDistance = dist;
@@ -63,17 +66,16 @@ namespace WinFormsApp17
 
             double dot = (double)deltaX * nx + (double)deltaY * ny;
 
-            decimal thresholdWorld = 3m / scaledec;
-            double threshold = (double)thresholdWorld;
+            decimal scale = (decimal)getScale();
+            decimal thresholdD = 3m / scale;
+            double threshold = (double)thresholdD;
 
             if (Math.Abs(dot) > threshold)
             {
                 DirectionPositive = dot > 0;
                 IsCopyPreview = true;
             }
-            
         }
-
         //==============================================
         // ③ マウスクリック：確定または線選択
         //==============================================
@@ -105,7 +107,6 @@ namespace WinFormsApp17
 
             // 線の選択
             SelectedIndex = SelectLine(worldPos);
-            //return true;
             return (SelectedIndex >= 0);
         }
 
@@ -122,10 +123,11 @@ namespace WinFormsApp17
                 var l = lineManager.decFile[i];
                 decimal d = DistancePointToSegment(click, l.start, l.end);
 
-                decimal hitPx = 20m;               // 画面上10px
-                decimal hitWorld = hitPx / scaledec;
+                // スケール調整
+                float scale = getScale();
+                decimal hitRange = 20m / (decimal)scale;
 
-                if (d < hitWorld && d < minDist)
+                if (d < hitRange && d < minDist)
                 {
                     minDist = d;
                     index = i;
@@ -216,9 +218,6 @@ namespace WinFormsApp17
             decimal dy = p1.y - p2.y;
             return (decimal)Math.Sqrt((double)(dx * dx + dy * dy));
         }
-
-
-
     }
 }
 

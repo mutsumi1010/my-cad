@@ -130,6 +130,38 @@ namespace WinFormsApp17
                 return new PointF(startPos.Value.X, p.Y);
         }
 
+        //=======================================
+        //   敷地レイヤーから近い線を探す (decimal)
+        //=======================================
+        // クリックポイント(Decimal)、scalef(float)をください。
+        // 敷地レイヤー（Layer=1）のうち、クリックポイントに近い線のIndex番号(int)をリターンします。
+        public int GetNearestSiteLineIndex(PointDec click, float scalef)
+        {
+            decimal minDist = 999999m;
+            int index = -1;
+
+            for (int i = 0; i < lineManager.decFile.Count; i++)
+            {
+                var l = lineManager.decFile[i];
+
+                // 敷地レイヤーだけ対象
+                if (l.Layer != 1)
+                    continue;
+
+                decimal d = DistancePointToSegment(click, l.start, l.end);
+
+                const float HitRadiusPx = 25f; // ヒット:10ピクセル約2.6ｍｍ
+                decimal hitDistWorld = (decimal)(HitRadiusPx / scalef);
+
+                if (d < minDist && d < hitDistWorld)
+                {
+                    minDist = d;
+                    index = i;
+                }
+            }
+            return index;
+        }
+
         //===============================
         //   近い線を探す (decimal)
         //===============================
@@ -417,12 +449,6 @@ namespace WinFormsApp17
             else
                 return (p.y - a.y) / dy;
         }
-
-
-
-
-
-
 
     }
 }
