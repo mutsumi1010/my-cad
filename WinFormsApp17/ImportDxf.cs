@@ -121,7 +121,9 @@ namespace WinFormsApp17
                                 {
                                     start = new PointDec(p1.x, p1.y),
                                     end = new PointDec(p2.x, p2.y),
-                                    Layer = layer
+                                    // --- DXF背景線として読み込み ---
+                                    //Layer = layer
+                                    Layer = 8
                                 });
 
                               //  Debug.WriteLine(lines[^1].Layer);
@@ -160,6 +162,7 @@ namespace WinFormsApp17
                             {
                                 var dim = new Dimension
                                 {
+                                    Layer = 8,  //背景表示
                                     Ext1 = Ext1,
                                     Ext2 = Ext2,
                                     Ext3 = Ext3,

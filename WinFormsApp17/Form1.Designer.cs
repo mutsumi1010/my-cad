@@ -36,7 +36,13 @@
             RtextBox2 = new TextBox();
             menuStrip1 = new MenuStrip();
             ファイルToolStripMenuItem = new ToolStripMenuItem();
+            開くToolStripMenuItem = new ToolStripMenuItem();
+            上書保存ToolStripMenuItem = new ToolStripMenuItem();
+            名前を付けて保存ToolStripMenuItem = new ToolStripMenuItem();
             pDF読込ToolStripMenuItem = new ToolStripMenuItem();
+            ツールToolStripMenuItem = new ToolStripMenuItem();
+            座標ファイルToolStripMenuItem = new ToolStripMenuItem();
+            textBoxScale = new TextBox();
             menuStrip1.SuspendLayout();
             SuspendLayout();
             // 
@@ -104,33 +110,80 @@
             // 
             // menuStrip1
             // 
+            menuStrip1.Font = new Font("Yu Gothic UI", 12F, FontStyle.Regular, GraphicsUnit.Point, 128);
             menuStrip1.ImageScalingSize = new Size(20, 20);
-            menuStrip1.Items.AddRange(new ToolStripItem[] { ファイルToolStripMenuItem });
+            menuStrip1.Items.AddRange(new ToolStripItem[] { ファイルToolStripMenuItem, ツールToolStripMenuItem });
             menuStrip1.Location = new Point(0, 0);
             menuStrip1.Name = "menuStrip1";
-            menuStrip1.Size = new Size(1092, 28);
+            menuStrip1.Size = new Size(1092, 36);
             menuStrip1.TabIndex = 3;
             menuStrip1.Text = "menuStrip1";
             // 
             // ファイルToolStripMenuItem
             // 
-            ファイルToolStripMenuItem.DropDownItems.AddRange(new ToolStripItem[] { pDF読込ToolStripMenuItem });
+            ファイルToolStripMenuItem.DropDownItems.AddRange(new ToolStripItem[] { 開くToolStripMenuItem, 上書保存ToolStripMenuItem, 名前を付けて保存ToolStripMenuItem, pDF読込ToolStripMenuItem });
             ファイルToolStripMenuItem.Name = "ファイルToolStripMenuItem";
-            ファイルToolStripMenuItem.Size = new Size(65, 24);
+            ファイルToolStripMenuItem.Size = new Size(83, 32);
             ファイルToolStripMenuItem.Text = "ファイル";
+            // 
+            // 開くToolStripMenuItem
+            // 
+            開くToolStripMenuItem.Name = "開くToolStripMenuItem";
+            開くToolStripMenuItem.Size = new Size(262, 32);
+            開くToolStripMenuItem.Text = "開く &O";
+            開くToolStripMenuItem.Click += 開くToolStripMenuItem_Click;
+            // 
+            // 上書保存ToolStripMenuItem
+            // 
+            上書保存ToolStripMenuItem.Name = "上書保存ToolStripMenuItem";
+            上書保存ToolStripMenuItem.Size = new Size(262, 32);
+            上書保存ToolStripMenuItem.Text = "上書保存 &S";
+            上書保存ToolStripMenuItem.Click += 上書保存ToolStripMenuItem_Click;
+            // 
+            // 名前を付けて保存ToolStripMenuItem
+            // 
+            名前を付けて保存ToolStripMenuItem.Name = "名前を付けて保存ToolStripMenuItem";
+            名前を付けて保存ToolStripMenuItem.Size = new Size(262, 32);
+            名前を付けて保存ToolStripMenuItem.Text = "名前を付けて保存 &A";
+            名前を付けて保存ToolStripMenuItem.Click += 名前を付けて保存ToolStripMenuItem_Click;
             // 
             // pDF読込ToolStripMenuItem
             // 
             pDF読込ToolStripMenuItem.Name = "pDF読込ToolStripMenuItem";
-            pDF読込ToolStripMenuItem.Size = new Size(224, 26);
+            pDF読込ToolStripMenuItem.Size = new Size(262, 32);
             pDF読込ToolStripMenuItem.Text = "JPEG読込";
             pDF読込ToolStripMenuItem.Click += pDF読込ToolStripMenuItem_Click;
+            // 
+            // ツールToolStripMenuItem
+            // 
+            ツールToolStripMenuItem.DropDownItems.AddRange(new ToolStripItem[] { 座標ファイルToolStripMenuItem });
+            ツールToolStripMenuItem.Name = "ツールToolStripMenuItem";
+            ツールToolStripMenuItem.Size = new Size(71, 32);
+            ツールToolStripMenuItem.Text = "ツール";
+            // 
+            // 座標ファイルToolStripMenuItem
+            // 
+            座標ファイルToolStripMenuItem.Name = "座標ファイルToolStripMenuItem";
+            座標ファイルToolStripMenuItem.Size = new Size(195, 32);
+            座標ファイルToolStripMenuItem.Text = "座標ファイル";
+            座標ファイルToolStripMenuItem.Click += 座標ファイルToolStripMenuItem_Click;
+            // 
+            // textBoxScale
+            // 
+            textBoxScale.Anchor = AnchorStyles.Bottom | AnchorStyles.Right;
+            textBoxScale.BackColor = SystemColors.ControlLight;
+            textBoxScale.Location = new Point(130, 195);
+            textBoxScale.Name = "textBoxScale";
+            textBoxScale.Size = new Size(125, 27);
+            textBoxScale.TabIndex = 4;
+            textBoxScale.TextChanged += textBoxScale_TextChanged;
             // 
             // Form1
             // 
             AutoScaleDimensions = new SizeF(8F, 20F);
             AutoScaleMode = AutoScaleMode.Font;
             ClientSize = new Size(1092, 655);
+            Controls.Add(textBoxScale);
             Controls.Add(menuStrip1);
             Controls.Add(RtextBox2);
             Controls.Add(RtextBox1);
@@ -157,5 +210,11 @@
         private MenuStrip menuStrip1;
         private ToolStripMenuItem ファイルToolStripMenuItem;
         private ToolStripMenuItem pDF読込ToolStripMenuItem;
+        private ToolStripMenuItem ツールToolStripMenuItem;
+        private ToolStripMenuItem 座標ファイルToolStripMenuItem;
+        private ToolStripMenuItem 開くToolStripMenuItem;
+        private ToolStripMenuItem 上書保存ToolStripMenuItem;
+        private ToolStripMenuItem 名前を付けて保存ToolStripMenuItem;
+        private TextBox textBoxScale;
     }
 }

@@ -43,14 +43,16 @@
             button12 = new Button();
             button13 = new Button();
             button14 = new Button();
+            button15 = new Button();
+            btnUseBoundary = new Button();
             SuspendLayout();
             // 
             // button1
             // 
-            button1.Font = new Font("Yu Gothic UI", 12.5F, FontStyle.Regular, GraphicsUnit.Point, 128);
+            button1.Font = new Font("Yu Gothic UI", 10.8F);
             button1.Location = new Point(12, 188);
             button1.Name = "button1";
-            button1.Size = new Size(70, 40);
+            button1.Size = new Size(56, 40);
             button1.TabIndex = 0;
             button1.Text = "線";
             button1.UseVisualStyleBackColor = true;
@@ -58,10 +60,10 @@
             // 
             // button2
             // 
-            button2.Font = new Font("Yu Gothic UI", 12.5F, FontStyle.Regular, GraphicsUnit.Point, 128);
+            button2.Font = new Font("Yu Gothic UI", 10.8F);
             button2.Location = new Point(12, 234);
             button2.Name = "button2";
-            button2.Size = new Size(70, 40);
+            button2.Size = new Size(56, 40);
             button2.TabIndex = 0;
             button2.Text = "消す";
             button2.UseVisualStyleBackColor = true;
@@ -69,32 +71,32 @@
             // 
             // button3
             // 
-            button3.Font = new Font("Yu Gothic UI", 12.5F, FontStyle.Regular, GraphicsUnit.Point, 128);
+            button3.Font = new Font("Yu Gothic UI", 9F, FontStyle.Regular, GraphicsUnit.Point, 128);
             button3.Location = new Point(12, 809);
             button3.Name = "button3";
-            button3.Size = new Size(70, 40);
+            button3.Size = new Size(78, 40);
             button3.TabIndex = 0;
-            button3.Text = "保存";
+            button3.Text = "DXF保存";
             button3.UseVisualStyleBackColor = true;
             button3.Click += Button3_Click;
             // 
             // button4
             // 
-            button4.Font = new Font("Yu Gothic UI", 12.5F, FontStyle.Regular, GraphicsUnit.Point, 128);
+            button4.Font = new Font("Yu Gothic UI", 9F, FontStyle.Regular, GraphicsUnit.Point, 128);
             button4.Location = new Point(12, 763);
             button4.Name = "button4";
-            button4.Size = new Size(70, 40);
+            button4.Size = new Size(78, 40);
             button4.TabIndex = 0;
-            button4.Text = "読込";
+            button4.Text = "DXF読込";
             button4.UseVisualStyleBackColor = true;
             button4.Click += Button4_Click;
             // 
             // button5
             // 
-            button5.Font = new Font("Yu Gothic UI", 12.5F, FontStyle.Regular, GraphicsUnit.Point, 128);
+            button5.Font = new Font("Yu Gothic UI", 10.8F);
             button5.Location = new Point(12, 280);
             button5.Name = "button5";
-            button5.Size = new Size(70, 40);
+            button5.Size = new Size(56, 40);
             button5.TabIndex = 0;
             button5.Text = "複線";
             button5.UseVisualStyleBackColor = true;
@@ -102,10 +104,10 @@
             // 
             // button6
             // 
-            button6.Font = new Font("Yu Gothic UI", 12.5F, FontStyle.Regular, GraphicsUnit.Point, 128);
+            button6.Font = new Font("Yu Gothic UI", 9F, FontStyle.Regular, GraphicsUnit.Point, 128);
             button6.Location = new Point(12, 326);
             button6.Name = "button6";
-            button6.Size = new Size(70, 40);
+            button6.Size = new Size(56, 40);
             button6.TabIndex = 0;
             button6.Text = "コーナ";
             button6.UseVisualStyleBackColor = true;
@@ -113,21 +115,21 @@
             // 
             // button7
             // 
-            button7.Font = new Font("Yu Gothic UI", 12.5F, FontStyle.Regular, GraphicsUnit.Point, 128);
+            button7.Font = new Font("Yu Gothic UI", 9F, FontStyle.Regular, GraphicsUnit.Point, 128);
             button7.Location = new Point(12, 717);
             button7.Name = "button7";
-            button7.Size = new Size(70, 40);
+            button7.Size = new Size(78, 40);
             button7.TabIndex = 0;
-            button7.Text = "印刷";
+            button7.Text = "DXF印刷";
             button7.UseVisualStyleBackColor = true;
             button7.Click += Button7_Click;
             // 
             // button8
             // 
-            button8.Font = new Font("Yu Gothic UI", 12.5F, FontStyle.Regular, GraphicsUnit.Point, 128);
+            button8.Font = new Font("Yu Gothic UI", 10.8F);
             button8.Location = new Point(12, 464);
             button8.Name = "button8";
-            button8.Size = new Size(70, 40);
+            button8.Size = new Size(56, 40);
             button8.TabIndex = 0;
             button8.Text = "寸法";
             button8.UseVisualStyleBackColor = true;
@@ -168,10 +170,10 @@
             // 
             // button12
             // 
-            button12.Font = new Font("Yu Gothic UI", 12.5F, FontStyle.Regular, GraphicsUnit.Point, 128);
+            button12.Font = new Font("Yu Gothic UI", 10.8F);
             button12.Location = new Point(12, 418);
             button12.Name = "button12";
-            button12.Size = new Size(70, 40);
+            button12.Size = new Size(56, 40);
             button12.TabIndex = 0;
             button12.Text = "円";
             button12.UseVisualStyleBackColor = true;
@@ -179,10 +181,10 @@
             // 
             // button13
             // 
-            button13.Font = new Font("Yu Gothic UI", 12.5F, FontStyle.Regular, GraphicsUnit.Point, 128);
+            button13.Font = new Font("Yu Gothic UI", 10.8F);
             button13.Location = new Point(12, 372);
             button13.Name = "button13";
-            button13.Size = new Size(70, 40);
+            button13.Size = new Size(56, 40);
             button13.TabIndex = 0;
             button13.Text = "伸縮";
             button13.UseVisualStyleBackColor = true;
@@ -190,14 +192,35 @@
             // 
             // button14
             // 
-            button14.Font = new Font("Yu Gothic UI", 12.5F, FontStyle.Regular, GraphicsUnit.Point, 128);
+            button14.Font = new Font("Yu Gothic UI", 10.8F);
             button14.Location = new Point(12, 510);
             button14.Name = "button14";
-            button14.Size = new Size(70, 40);
+            button14.Size = new Size(56, 40);
             button14.TabIndex = 0;
             button14.Text = "回転";
             button14.UseVisualStyleBackColor = true;
             button14.Click += Button14_Click;
+            // 
+            // button15
+            // 
+            button15.Font = new Font("Yu Gothic UI", 7.8F, FontStyle.Regular, GraphicsUnit.Point, 128);
+            button15.Location = new Point(12, 568);
+            button15.Name = "button15";
+            button15.Size = new Size(56, 49);
+            button15.TabIndex = 0;
+            button15.Text = "背景OFF";
+            button15.UseVisualStyleBackColor = true;
+            button15.Click += Button15_Click;
+            // 
+            // btnUseBoundary
+            // 
+            btnUseBoundary.Location = new Point(12, 623);
+            btnUseBoundary.Name = "btnUseBoundary";
+            btnUseBoundary.Size = new Size(56, 52);
+            btnUseBoundary.TabIndex = 1;
+            btnUseBoundary.Text = "用途堺";
+            btnUseBoundary.UseVisualStyleBackColor = true;
+            btnUseBoundary.Click += btnUseBoundary_Click;
             // 
             // Form2
             // 
@@ -205,12 +228,14 @@
             AutoScaleMode = AutoScaleMode.Font;
             BackColor = SystemColors.Window;
             ClientSize = new Size(148, 900);
+            Controls.Add(btnUseBoundary);
             Controls.Add(button11);
             Controls.Add(button10);
             Controls.Add(button9);
             Controls.Add(button7);
             Controls.Add(button4);
             Controls.Add(button3);
+            Controls.Add(button15);
             Controls.Add(button14);
             Controls.Add(button13);
             Controls.Add(button12);
@@ -241,5 +266,7 @@
         private Button button12;
         private Button button13;
         private Button button14;
+        private Button button15;
+        private Button btnUseBoundary;
     }
 }

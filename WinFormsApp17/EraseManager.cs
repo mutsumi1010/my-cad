@@ -4,35 +4,41 @@
     {
         private readonly LineManager lineManager;
         private readonly List<Dimension> dimFile;
-        private readonly float scalef;
+        //private readonly float scalef;
 
 
         // Undo 履歴（最大5）
         private Stack<(int index, PointDec start, PointDec end)> history
             = new Stack<(int, PointDec, PointDec)>(5);
 
-        public EraseManager(LineManager manager, List<Dimension>dimFile, float scalef)
+        public EraseManager(LineManager manager, List<Dimension>dimFile)
         {
             this.lineManager = manager;
             this.dimFile = dimFile;
-            this.scalef = scalef;
+            //this.scalef = scalef;
         }
 
         //-------------------------------------
         // クリックで削除（成功なら true）
         //-------------------------------------
-        public bool OnMouseClick(PointDec world)
+        public bool OnMouseClick(PointDec world, float currentScale)
         {
             // ==========================
             // ① 通常線の消去（従来どおり）
             // ==========================
-            float pickTol = 18f / Math.Max(scalef, 0.0001f);  // 画面上12pxぶん
+            //float pickTol = 20f / Math.Max(scalef, 0.0001f);  // 画面上12pxぶん
+            float pickTol = 20f / Math.Max(currentScale, 0.0001f);
             float minDist = float.MaxValue;
             int eraseIndex = -1;
 
             for (int i = 0; i < lineManager.decFile.Count; i++)
             {
                 var l = lineManager.decFile[i];
+
+                // ★ レイヤ8（DXF背景）は消去候補にしない
+                if (!lineManager.IsEditable(l))
+                    continue;
+
                 float d = DistancePointToSegment(
                     world.ToPointF(),
                     l.start.ToPointF(),
@@ -44,6 +50,7 @@
                     minDist = d;
                     eraseIndex = i;
                 }
+           
             }
 
             if (eraseIndex >= 0)

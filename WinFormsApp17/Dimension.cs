@@ -2,6 +2,7 @@
 {
     public class Dimension
     {
+        public int Layer { get; set; } = 0;
         public PointDec Ext1 { get; set; }
         public PointDec Ext2 { get; set; }
         public PointDec Ext3 { get; set; }

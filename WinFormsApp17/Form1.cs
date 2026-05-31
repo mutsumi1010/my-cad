@@ -1,7 +1,9 @@
 using System.Diagnostics;
 using System.Drawing;
-using static System.ComponentModel.Design.ObjectSelectorEditor;
 using System.IO;
+using System.Net;
+using System.Text.Json;
+using static System.ComponentModel.Design.ObjectSelectorEditor;
 
 namespace WinFormsApp17
 {
@@ -22,7 +24,7 @@ namespace WinFormsApp17
         BuildingDataList buildingDataList;
         DimensionDataList dataList;
 
-        LineManager lineManager;
+        public LineManager lineManager;
         CornerManager cornerManager;
         CircleManager circleManager;
         ParallelManager parallelManager;
@@ -35,6 +37,7 @@ namespace WinFormsApp17
         private DimensionMouseHandler dimMouse;
         private DimensionRenderer dimRenderer;
         RoadManager roadManager;
+        private ProjectFileManager projectFileManager;
 
         private DxfLoad dxfLoad;
         private DxfSave dxfSave;
@@ -87,6 +90,11 @@ namespace WinFormsApp17
             Controls.Add(form2);
             form2.Location = new Point(10, 10);
             this.form2.Show();
+            form2.BackgroundToggleClicked += () =>
+            {
+                pdfImage = null;   // ←これで消える
+                Invalidate();
+            };
 
             this.siteDataList = new SiteDataList();
             this.roadDataList = new RoadDataList();
@@ -103,6 +111,7 @@ namespace WinFormsApp17
             Controls.Add(form5);
             form5.RequestRedraw = () => this.Invalidate();
             form5.Show();
+            this.projectFileManager = new ProjectFileManager(lineManager, form5);
 
             this.cornerManager = new CornerManager(
                       lineManager, siteDataList,
@@ -122,7 +131,11 @@ namespace WinFormsApp17
             this.function = new Function01(lineManager, this);
 
             this.parallelManager = new ParallelManager(lineManager, GetScale);
-            this.eraseManager = new EraseManager(lineManager, dataList.DimList, scalef);
+            //this.eraseManager = new EraseManager(lineManager, dataList.DimList, scalef);
+            this.eraseManager = new EraseManager(
+                    lineManager,
+                    dataList.DimList
+                 );
             this.dimBuilder = new DimensionBuilder();
 
             this.dimMouse = new DimensionMouseHandler(
@@ -147,6 +160,14 @@ namespace WinFormsApp17
 
             roadlabel2.Visible = false;  // Road 幅員
             form2.ModeChanged += OnModeChanged;
+
+            //カテゴリー　道路　のときのメッセージ
+            labelRoadMessage.Left = form2.Right + 5;
+            labelRoadMessage.Top = form2.Top + 25;
+            labelRoadMessage.Visible = false;
+            roadlabel2.Left = labelRoadMessage.Left;
+            roadlabel2.Top = labelRoadMessage.Top;
+
             form2.TargetChanged += t =>
             {
                 lineManager.SetCurrentTarget(t);
@@ -168,6 +189,7 @@ namespace WinFormsApp17
                 else
                 {
                     labelRoadMessage.Visible = true;
+                    labelRoadMessage.BringToFront();
                 }
 
                 Invalidate();
@@ -176,13 +198,6 @@ namespace WinFormsApp17
             form2.LoadClicked += () => { dxfLoad.Execute(); Invalidate(); };
             form2.SaveClicked += () => { dxfSave.Execute(); Invalidate(); };
             form2.PrintClicked += () => { printManager.Execute(); };
-
-            //カテゴリー　道路　のときのメッセージ
-            labelRoadMessage.Left = form2.Right + 5;
-            labelRoadMessage.Top = form2.Top;
-            labelRoadMessage.Visible = false;
-            roadlabel2.Left = labelRoadMessage.Left;
-            roadlabel2.Top = labelRoadMessage.Top;
 
             int gap = 10;
             Rlabel1.Left = roadlabel2.Right + gap;
@@ -193,22 +208,19 @@ namespace WinFormsApp17
             // 垂直位置
             RtextBox1.Top = roadlabel2.Top;
             RtextBox2.Top = RtextBox1.Top;
-            Rlabel1.Top = RtextBox1.Top + (RtextBox1.Height - Rlabel1.Height) / 2;
-            Rlabel2.Top = RtextBox2.Top + (RtextBox2.Height - Rlabel2.Height) / 2;
+            Rlabel1.Top = RtextBox1.Top + (RtextBox1.Height - Rlabel1.Height) / 2 + 3;
+            Rlabel2.Top = RtextBox2.Top + (RtextBox2.Height - Rlabel2.Height) / 2 + 3;
 
-            roadlabel2.Visible = false;  // Road 幅員
             Rlabel1.Visible = false;
             Rlabel2.Visible = false;
             RtextBox1.Visible = false;
             RtextBox2.Visible = false;
 
-            //RtextBox1.Leave += RoadWidthChanged;
-            //RtextBox2.Leave += RoadWidthChanged;
-            //RtextBox1.TextChanged += RtextBox1_TextChanged;
-            //RtextBox1.TextChanged += RoadWidthChanged;
-            //RtextBox2.TextChanged += RoadWidthChanged;
             RtextBox1.TextChanged += RtextBox1_TextChanged;
             RtextBox2.TextChanged += RtextBox2_TextChanged;
+
+            SetupScaleTextBox();
+            UpdateScaleText();
         }
         //-----------------
         //  Enter key 
@@ -268,6 +280,7 @@ namespace WinFormsApp17
             offsetY += (screenBefore.Y - screenAfter.Y);
             //System.Diagnostics.Debug.WriteLine($"更新後offset = {offsetX:F18} , {offsetY:F18}");
             //System.Diagnostics.Debug.WriteLine($"        ");
+            UpdateScaleText();
             Invalidate();
         }
         //*******************//
@@ -352,17 +365,47 @@ namespace WinFormsApp17
             if (mode == MoveType.Draw)
             {
                 var worldF = ScreenToWorldF(new PointF(e.X, e.Y));
+                //if (e.Button == MouseButtons.Right)
+                //{
+                //    var worldDec = ToWorld(worldF);
 
+                //    // ① まず端点スナップ
+                //    if (function.TrySnapToEndpoint(worldDec, WorldToScreen, out var snappedDec))
+                //    {
+                //        worldF = ToScreen(snappedDec);
+                //    }
+                //    // ② 端点がなければ交点スナップ
+                //    else if (function.TrySnapToIntersectionNear(
+                //        worldDec,
+                //        lineManager.decFile,
+                //        lineManager.CircleFile,   // 円がなければ空リストでOK
+                //        scalef,
+                //        out snappedDec))
+                //    {
+                //        worldF = ToScreen(snappedDec);
+                //    }
+                //    else
+                //    {
+                //        return;
+                //    }
+                //}
                 if (e.Button == MouseButtons.Right)
                 {
                     var worldDec = ToWorld(worldF);
 
-                    if (!function.TrySnapToEndpoint(worldDec, WorldToScreen,
+                    if (function.TrySnapToNearestPoint(
+                        worldDec,
+                        lineManager.decFile,
+                        lineManager.CircleFile,
+                        scalef,
                         out var snappedDec))
+                    {
+                        worldF = ToScreen(snappedDec);
+                    }
+                    else
                     {
                         return;
                     }
-                    worldF = ToScreen(snappedDec);
                 }
 
                 if (!isFirstClick)
@@ -377,7 +420,8 @@ namespace WinFormsApp17
                     var p1 = ToWorld(startPos.Value);
                     var p2 = ToWorld(endPos.Value);
 
-                    lineManager.AddLine(p1, p2);
+                    //lineManager.AddLine(p1, p2);
+                    lineManager.AddLine(p1, p2, form2.IsUseBoundaryMode);
                     isFirstClick = false;
                     Invalidate();
                 }
@@ -436,7 +480,7 @@ namespace WinFormsApp17
                     return;
                 }
                 // 線の削除
-                if (eraseManager.OnMouseClick(world))
+                if (eraseManager.OnMouseClick(world, scalef))
                     Invalidate();
                 return;
             }
@@ -556,12 +600,15 @@ namespace WinFormsApp17
                 var p2 = line.end.ToPointF();
 
                 var layer = line.Layer;
-                
+
                 //Debug.WriteLine(layer);
                 Pen pen = layer switch
                 {
                     1 => new Pen(Color.LimeGreen, 2f / scalef),
                     2 => new Pen(Color.LimeGreen, 2f / scalef),
+                    // 8 => new Pen(Color.Gray, 2f / scalef), //DXF背景
+                    8 => new Pen(Color.FromArgb(140, 140, 140), 1f / scalef), //DXF背景 //DXF背景
+                    11 => new Pen(Color.Orange, 1f / scalef),   //用途境
                     _ => new Pen(Color.Black, 2f / scalef),
                 };
 
@@ -574,13 +621,20 @@ namespace WinFormsApp17
                 if (mode == MoveType.Trim && i == trimManager.selectedIndex)
                     pen = new Pen(Color.Red, 2f / scalef);
 
+                //// 道路カテゴリーで選択中の敷地境界線
+                //if (lineManager.TargetM == TargetType.Road && i == roadManager.SelectedIndex)
+                //{
+                //    if (roadManager.IsSelectingRoadBoundary)
+                //        pen = new Pen(Color.Red, 2f / scalef);      // 選択中
+                //    else
+                //        pen = new Pen(Color.LimeGreen, 2f / scalef); // 幅員入力後
+                //}
+
                 // 道路カテゴリーで選択中の敷地境界線
                 if (lineManager.TargetM == TargetType.Road && i == roadManager.SelectedIndex)
                 {
-                    if (roadManager.IsSelectingRoadBoundary)
-                        pen = new Pen(Color.Red, 2f / scalef);      // 選択中
-                    else
-                        pen = new Pen(Color.LimeGreen, 2f / scalef); // 幅員入力後
+                    pen.Dispose();
+                    pen = new Pen(Color.Red, 2f / scalef);
                 }
 
                 e.Graphics.DrawLine(pen, p1, p2);
@@ -868,7 +922,7 @@ namespace WinFormsApp17
         //================================
         //   画面座標 → 世界座標変換関数 
         //================================
-        private PointDec ToWorld(PointF p)
+        public PointDec ToWorld(PointF p)
         {
             return new PointDec((decimal)p.X, (decimal)p.Y);
         }
@@ -876,7 +930,7 @@ namespace WinFormsApp17
         //================================
         //   世界座標 → 画面座標変換関数 
         //================================
-        private PointF ToScreen(PointDec p)
+        public PointF ToScreen(PointDec p)
         {
             return new PointF((float)p.x, (float)p.y);
         }
@@ -893,7 +947,7 @@ namespace WinFormsApp17
         }
 
         // float 版
-        private PointF WorldToScreenF(PointF p)
+        public PointF WorldToScreenF(PointF p)
         {
             return new PointF(
                 p.X * scalef + offsetX,
@@ -904,7 +958,7 @@ namespace WinFormsApp17
         //=========================
         // Screen → World
         //=========================
-        private PointDec ScreenToWorld(PointF p)
+        public PointDec ScreenToWorld(PointF p)
         {
             return new PointDec(
                 (decimal)((p.X - offsetX) / scalef),
@@ -912,7 +966,7 @@ namespace WinFormsApp17
             );
         }
 
-        private PointF ScreenToWorldF(PointF p)
+        public PointF ScreenToWorldF(PointF p)
         {
             return new PointF(
                 (p.X - offsetX) / scalef,
@@ -1063,10 +1117,54 @@ namespace WinFormsApp17
                 isJpegFirsted = true;
 
                 Invalidate();
-                
+
             }
         }
 
+        private void 座標ファイルToolStripMenuItem_Click(object sender, EventArgs e)
+        {
+            FormCoordinate f = new FormCoordinate();
+            f.Owner = this;
+            f.Show();
+        }
+
+        private void 開くToolStripMenuItem_Click(object sender, EventArgs e)
+        {
+            projectFileManager.Open();
+            Invalidate();
+        }
+
+        private void 上書保存ToolStripMenuItem_Click(object sender, EventArgs e)
+        {
+            projectFileManager.Save();
+        }
+
+        private void 名前を付けて保存ToolStripMenuItem_Click(object sender, EventArgs e)
+        {
+            projectFileManager.SaveAs();
+        }
+
+        private void textBoxScale_TextChanged(object sender, EventArgs e)
+        {
+
+        }
+
+        private void UpdateScaleText()
+        {
+            textBoxScale.Text = $"scale = {scalef:0.###}";
+        }
+        private void SetupScaleTextBox()
+        {
+            textBoxScale.Width = 120;
+
+            textBoxScale.Left = this.ClientSize.Width - textBoxScale.Width - 20;
+            textBoxScale.Top = this.ClientSize.Height - textBoxScale.Height - 20;
+
+            textBoxScale.Anchor = AnchorStyles.Right | AnchorStyles.Bottom;
+
+            textBoxScale.ReadOnly = true;
+            textBoxScale.TabStop = false;
+        }
     }
 }
 

@@ -16,7 +16,9 @@ namespace WinFormsApp17
         {
             Site = 1,
             Road = 2,
-            Building = 3
+            Building = 3,
+
+            SiteUseBoundary = 11
         }
 
         public LineManager(
@@ -45,11 +47,29 @@ namespace WinFormsApp17
                 _ => 3 // デフォルトは建物
             };
         }
+        public bool IsBackgroundLayer(int layer)
+        {
+            return layer == 8;  //背景用DXF
+        }
 
+        public bool IsEditable(LineEntity line)
+        {
+            return !IsBackgroundLayer(line.Layer);
+        }
+
+        //==========================
         //  線の追加（decimal）
-        public void AddLine(PointDec start, PointDec end)
+        //==========================
+        // public void AddLine(PointDec start, PointDec end)
+        public void AddLine(PointDec start, PointDec end, bool isUseBoundaryMode = false)
         {
             int layer = GetCurrentLayer();
+
+            if (TargetM == TargetType.Site && isUseBoundaryMode)
+            {
+                layer = (int)LayerType.SiteUseBoundary; // 11
+            }
+
             decFile.Add(new LineEntity
             {
                 start = start,
@@ -57,6 +77,8 @@ namespace WinFormsApp17
                 Layer = layer
             });
 
+            // 今は decFile を正本にするため、各 Target の LineList には追加しない
+            /*
             switch (TargetM)
             {
                 case TargetType.Site:
@@ -71,11 +93,33 @@ namespace WinFormsApp17
                     building.LineList.Add((start, end));
                     break;
             }
+            */
         }
 
+
+        //--------------------------
+        // 線の追加　Site
+        //--------------------------
+        public void AddSiteLine(PointDec start, PointDec end)
+        {
+            int layer = (int)LayerType.Site;
+
+            decFile.Add(new LineEntity
+            {
+                start = start,
+                end = end,
+                Layer = layer
+            });
+        }
+
+
         //  線の削除
+
         public void RemoveLine(LineEntity line)
         {
+            if (!IsEditable(line))
+                return;
+
             // 共通の描画用リスト
             decFile.Remove(line);
             var tuple = (line.start, line.end);

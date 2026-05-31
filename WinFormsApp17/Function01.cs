@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Drawing;
 using System.Drawing.Drawing2D;
 using System.Diagnostics;
+
 namespace WinFormsApp17
 {
     //=======================
@@ -13,7 +14,7 @@ namespace WinFormsApp17
         private LineManager lineManager;
         Form1 form1;
 
-        public Function01(LineManager manager,  Form1 form1)
+        public Function01(LineManager manager, Form1 form1)
         {
             this.lineManager = manager;
             this.form1 = form1;
@@ -113,6 +114,7 @@ namespace WinFormsApp17
 
             return found;
         }
+
         //=======================
         //  スナップ関数  　  
         //======================= 
@@ -159,6 +161,7 @@ namespace WinFormsApp17
                     index = i;
                 }
             }
+
             return index;
         }
 
@@ -186,6 +189,7 @@ namespace WinFormsApp17
                     index = i;
                 }
             }
+
             return index;
         }
 
@@ -221,8 +225,10 @@ namespace WinFormsApp17
                     index = i;
                 }
             }
+
             return index;
         }
+
         //======================================
         //   クリックポイントから近い円のIndexを返す
         //======================================
@@ -256,8 +262,10 @@ namespace WinFormsApp17
                     index = i;
                 }
             }
+
             return index;
         }
+
         //======================================================
         //   距離計算（decimal）
         //======================================================
@@ -291,7 +299,6 @@ namespace WinFormsApp17
         //======================================================
         //   ライン（円）の交点計算（decimal）
         //======================================================
-
         public bool TrySnapToIntersection(
               List<LineEntity> lines,
               List<CircleEntity> circles,
@@ -302,7 +309,7 @@ namespace WinFormsApp17
             var baseLine = lines[baseLineIndex];
 
             decimal minDist = decimal.MaxValue;
-   
+
             bool found = false;
 
             // 線×線
@@ -313,10 +320,6 @@ namespace WinFormsApp17
                 if (TryGetLineLineIntersection(baseLine, lines[i], out var ip))
                 {
                     decimal d = Distance(ip, baseLine.start);
-      //              Debug.WriteLine($"ip = {ip}");
-      //              Debug.WriteLine($"baseLine.start = {baseLine.start}");
-      //              Debug.WriteLine($"senn d = {d}");
-      //              Debug.WriteLine($"senn minDist = {minDist}");
 
                     if (d < minDist)
                     {
@@ -450,5 +453,145 @@ namespace WinFormsApp17
                 return (p.y - a.y) / dy;
         }
 
+        //================================
+        //  右クリックで線の交点をとる
+        //================================
+        public bool TrySnapToIntersectionNear(
+              PointDec mouse,
+              List<LineEntity> lines,
+              List<CircleEntity> circles,
+              float currentScale,
+              out PointDec snapped)
+        {
+            snapped = default;
+
+            decimal pickTol = (decimal)(20f / Math.Max(currentScale, 0.0001f));
+
+            decimal minDist = decimal.MaxValue;
+            bool found = false;
+
+            // 線 × 線
+            for (int i = 0; i < lines.Count; i++)
+            {
+                if (!IsLineNearPoint(lines[i], mouse, pickTol))
+                    continue;
+
+                for (int j = i + 1; j < lines.Count; j++)
+                {
+                    if (!IsLineNearPoint(lines[j], mouse, pickTol))
+                        continue;
+
+                    if (TryGetLineLineIntersection(lines[i], lines[j], out var ip))
+                    {
+                        decimal d = Distance(mouse, ip);
+
+                        if (d < pickTol && d < minDist)
+                        {
+                            minDist = d;
+                            snapped = ip;
+                            found = true;
+                        }
+                    }
+                }
+            }
+
+            // 線 × 円
+            foreach (var line in lines)
+            {
+                foreach (var c in circles)
+                {
+                    if (TryGetLineCircleIntersection(line, c, out var ip))
+                    {
+                        decimal d = Distance(mouse, ip);
+
+                        if (d < pickTol && d < minDist)
+                        {
+                            minDist = d;
+                            snapped = ip;
+                            found = true;
+                        }
+                    }
+                }
+            }
+
+            return found;
+        }
+
+        //---------------------------------------------
+        //  右クリックで線の交点をとる:クリック点と線との距離
+        //---------------------------------------------
+        private bool IsLineNearPoint(LineEntity line, PointDec p, decimal tol)
+        {
+            decimal d = DistancePointToSegment(
+                p,
+                line.start,
+                line.end
+            );
+
+            return d <= tol;  //tol許容範囲
+        }
+
+        /////////////////////////
+        ///
+        public bool TrySnapToNearestPoint(
+           PointDec mouse,
+           List<LineEntity> lines,
+           List<CircleEntity> circles,
+           float scale,
+          out PointDec snapped)
+        {
+            snapped = mouse;
+
+            decimal snapRange = 5m / Math.Max((decimal)scale, 0.001m);
+
+            PointDec bestPoint = mouse;
+            decimal bestDistance = decimal.MaxValue;
+            bool found = false;
+
+            void AddCandidate(PointDec p)
+            {
+                decimal d = Distance(mouse, p);
+
+                if (d <= snapRange && d < bestDistance)
+                {
+                    bestDistance = d;
+                    bestPoint = p;
+                    found = true;
+                }
+            }
+
+            // 端点候補
+            foreach (var line in lines)
+            {
+                AddCandidate(line.start);
+                AddCandidate(line.end);
+            }
+
+            // 交点候補：近い線だけ
+            for (int i = 0; i < lines.Count; i++)
+            {
+                if (!IsLineNearPoint(lines[i], mouse, snapRange))
+                    continue;
+
+                for (int j = i + 1; j < lines.Count; j++)
+                {
+                    if (!IsLineNearPoint(lines[j], mouse, snapRange))
+                        continue;
+
+                    if (TryGetLineLineIntersection(lines[i], lines[j], out var p))
+                    {
+                        AddCandidate(p);
+                    }
+                }
+            }
+
+            if (found)
+            {
+                snapped = bestPoint;
+                return true;
+            }
+
+            return false;
+        }
     }
 }

@@ -29,11 +29,22 @@ namespace WinFormsApp17
 
             textBox2.Leave += textBox2_Leave;       //　敷地面積 ##,0.00
 
+            textBox1.TextAlign = HorizontalAlignment.Right;
             textBox2.TextAlign = HorizontalAlignment.Right;
             textBox3.TextAlign = HorizontalAlignment.Right;
             textBox4.TextAlign = HorizontalAlignment.Right;
             textBox5.TextAlign = HorizontalAlignment.Right;
             textBox6.TextAlign = HorizontalAlignment.Right;
+            textBox7.TextAlign = HorizontalAlignment.Right;
+            textBox8.TextAlign = HorizontalAlignment.Right;
+            textBox9.TextAlign = HorizontalAlignment.Right;
+            textBox10.TextAlign = HorizontalAlignment.Right;
+            textBox11.TextAlign = HorizontalAlignment.Right;
+            textBox12.TextAlign = HorizontalAlignment.Right;
+            textBox13.TextAlign = HorizontalAlignment.Right;
+            textBox14.TextAlign = HorizontalAlignment.Right;
+            textBox16.TextAlign = HorizontalAlignment.Right;
+
 
             comboBox1.SelectedIndex = -1;
         }
@@ -136,7 +147,6 @@ namespace WinFormsApp17
 
         private void label12_Click(object sender, EventArgs e)
         {
-
         }
 
         private void textBox3_TextChanged(object sender, EventArgs e)
@@ -230,34 +240,34 @@ namespace WinFormsApp17
             ///////////////////////////////////
             ///
             // 元の点（重複除去して3点だけ取る）
-           /*var originalPoints = siteLines
-                 .SelectMany(seg => new[] { seg.start, seg.end })
-            //     .Distinct()
-                .ToList();
+            /*var originalPoints = siteLines
+                  .SelectMany(seg => new[] { seg.start, seg.end })
+             //     .Distinct()
+                 .ToList();
 
-         /*   // 変換後の点
-            var scaledPoints = scaledSiteLines
-                .SelectMany(seg => new[] { seg.A, seg.B })
-                .Distinct()
-                .ToList();
+          /*   // 変換後の点
+             var scaledPoints = scaledSiteLines
+                 .SelectMany(seg => new[] { seg.A, seg.B })
+                 .Distinct()
+                 .ToList();
 
-            // 表示用文字列作成
-            string msg = "【元の点】\n";
-            for (int i = 0; i < originalPoints.Count; i++)
-            {
-                msg += $"P{i}: ({originalPoints[i].x}, {originalPoints[i].y})\n";
-            }
+             // 表示用文字列作成
+             string msg = "【元の点】\n";
+             for (int i = 0; i < originalPoints.Count; i++)
+             {
+                 msg += $"P{i}: ({originalPoints[i].x}, {originalPoints[i].y})\n";
+             }
 
-            msg += $"\n【重心】\n({centroid.x}, {centroid.y})\n";
+             msg += $"\n【重心】\n({centroid.x}, {centroid.y})\n";
 
-            msg += "\n【変換後の点】\n";
-            for (int i = 0; i < scaledPoints.Count; i++)
-            {
-                msg += $"P{i}: ({scaledPoints[i].x}, {scaledPoints[i].y})\n";
-            }
+             msg += "\n【変換後の点】\n";
+             for (int i = 0; i < scaledPoints.Count; i++)
+             {
+                 msg += $"P{i}: ({scaledPoints[i].x}, {scaledPoints[i].y})\n";
+             }
 
-            MessageBox.Show(msg);
-            */////////////////////////////////////////////////
+             MessageBox.Show(msg);
+             */////////////////////////////////////////////////
 
 
 
@@ -267,10 +277,10 @@ namespace WinFormsApp17
                 .ToList();
 
             // 既存の Layer 1 を削除
-               foreach (var line in oldSiteLines)
-               {
-                  lineManager.decFile.Remove(line);
-               }
+            foreach (var line in oldSiteLines)
+            {
+                lineManager.decFile.Remove(line);
+            }
 
             // 拡大縮小後の線を追加
             foreach (var seg in scaledSiteLines)
@@ -282,7 +292,7 @@ namespace WinFormsApp17
                     Layer = (int)LineManager.LayerType.Site
                 });
             }
-          
+
             // 再描画
             RequestRedraw?.Invoke();
 
@@ -294,6 +304,95 @@ namespace WinFormsApp17
                 x = center.x + (p.x - center.x) * scale,
                 y = center.y + (p.y - center.y) * scale
             };
+        }
+
+        //==========================
+        // 入力データ保存
+        //==========================
+        public void SaveInputDataTo(CadProjectData data)
+        {
+            // 上部
+            data.CalculatedSiteArea = textBox1.Text;   // 敷地_面積計算
+            data.TargetSiteArea = textBox13.Text;      // 敷地⇒面積合わせ
+
+            // 全体計算
+            data.SiteArea = textBox2.Text;                 // 敷地面積
+            data.BuildingCoverageRatio = textBox3.Text;    // 建蔽率
+            data.AdoptedFloorAreaRatio = textBox4.Text;    // [採用] 容積率
+            data.AllowedBuildingArea = textBox5.Text;      // 許容建築面積
+            data.AllowedFloorArea = textBox6.Text;         // 許容延床面積
+
+            // 用途地域①
+            data.Zoning1 = comboBox1.Text;                         // 用途地域①
+            data.Zoning1BuildingCoverageRatio = textBox10.Text;    // 建蔽率
+            data.Zoning1FloorAreaRatio = textBox9.Text;            // 容積率
+            data.Zoning1SiteArea = textBox11.Text;                 // 敷地面積
+
+            // 用途地域②
+            data.Zoning2 = comboBox2.Text;                         // 用途地域②
+            data.Zoning2BuildingCoverageRatio = textBox12.Text;    // 建蔽率
+            data.Zoning2FloorAreaRatio = textBox14.Text;           // 容積率
+            data.Zoning2SiteArea = textBox16.Text;                 // 敷地面積
+
+            // 道路
+            data.RoadWidth = textBox7.Text;                 // 道路幅員
+            data.RoadFloorAreaRatio = textBox8.Text;        // 道路による容積率
+        }
+
+        //==========================
+        // 入力データ読込
+        //==========================
+        public void LoadInputDataFrom(CadProjectData data)
+        {
+            // 上部
+            textBox1.Text = data.CalculatedSiteArea;
+            textBox13.Text = data.TargetSiteArea;
+
+            // 全体計算
+            textBox2.Text = data.SiteArea;
+            textBox3.Text = data.BuildingCoverageRatio;
+            textBox4.Text = data.AdoptedFloorAreaRatio;
+            textBox5.Text = data.AllowedBuildingArea;
+            textBox6.Text = data.AllowedFloorArea;
+
+            // 用途地域①
+            comboBox1.Text = data.Zoning1;
+            textBox10.Text = data.Zoning1BuildingCoverageRatio;
+            textBox9.Text = data.Zoning1FloorAreaRatio;
+            textBox11.Text = data.Zoning1SiteArea;
+
+            // 用途地域②
+            comboBox2.Text = data.Zoning2;
+            textBox12.Text = data.Zoning2BuildingCoverageRatio;
+            textBox14.Text = data.Zoning2FloorAreaRatio;
+            textBox16.Text = data.Zoning2SiteArea;
+
+            // 道路
+            textBox7.Text = data.RoadWidth;
+            textBox8.Text = data.RoadFloorAreaRatio;
+        }
+
+        private void comboBox1_SelectedIndexChanged_1(object sender, EventArgs e)
+        {
+
+        }
+
+        private void label27_Click(object sender, EventArgs e)
+        {
+
+        }
+
+        private void label20_Click(object sender, EventArgs e)
+        {
+            label20.Text = "";
+            label20.BorderStyle = BorderStyle.Fixed3D;
+            label20.Height = 2;
+            label20.Width = 300;
+        }
+
+        private void textBox11_TextChanged(object sender, EventArgs e)
+        {
+
         }
     }
 }

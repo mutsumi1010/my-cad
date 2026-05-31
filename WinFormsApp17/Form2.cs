@@ -37,10 +37,15 @@ namespace WinFormsApp17
         public event Action? ModeChanged;
         public event Action? PrintClicked;
         public event Action<TargetType>? TargetChanged;
+        public event Action? BackgroundToggleClicked;
 
         public decimal GetOffsetDistance { get; private set; } = 0;
 
         public MoveType GetMoveType() => moveType;
+
+        private bool isUseBoundaryMode = false;
+
+        public bool IsUseBoundaryMode => isUseBoundaryMode;
 
         //===============================
         //   コンストラクタ
@@ -57,12 +62,15 @@ namespace WinFormsApp17
             this.FormBorderStyle = FormBorderStyle.None;
             this.Dock = DockStyle.None;
             SetToolButtonsInitialColor();
-           //SetToolButtonsEnabled(false);
         }
 
         private void Form2_Load(object sender, EventArgs e)
         {
         }
+
+        //----------------------------
+        //  文字　グレーアウト
+        //----------------------------
         private void SetToolButtonsInitialColor()
         {
             Color c = SystemColors.ControlLight;
@@ -75,7 +83,11 @@ namespace WinFormsApp17
             button12.ForeColor = c; // 円
             button13.ForeColor = c; // 伸縮
             button14.ForeColor = c; // 回転
+            btnUseBoundary.ForeColor = c; // 用途境界線
         }
+        //----------------------------
+        //  文字　黒
+        //----------------------------
         private void SetToolButtonsNormalColor()
         {
             Color c = SystemColors.ControlText;
@@ -88,24 +100,12 @@ namespace WinFormsApp17
             button12.ForeColor = c;
             button13.ForeColor = c;
             button14.ForeColor = c;
+            btnUseBoundary.ForeColor = c; // 用途境界線
         }
 
-
-        // private void SetToolButtonsEnabled(bool enabled)
-        //  {
-        //button.Enabled = false; 操作不可　true 操作可能
-        //     button1.Enabled = enabled;   // Draw   enabled:有効
-        //     button2.Enabled = enabled;   // Erase
-        //     button5.Enabled = enabled;   // Parallel
-        //      button6.Enabled = enabled;   // Corner
-        //     button8.Enabled = enabled;   // Dimension
-        //     button12.Enabled = enabled;  // DrawCircle
-        //      button13.Enabled = enabled;  // Trim
-        //      button14.Enabled = enabled;  // Rotate
-        //   }
         private void SetActiveButton(Button btn)
         {
-            
+
             if (activeButton != null)
             {
                 activeButton.BackColor = SystemColors.Control;
@@ -266,7 +266,6 @@ namespace WinFormsApp17
             currentTarget = TargetType.Site;
             SetActiveButton((Button)sender);
             SetToolButtonsNormalColor();
-            //SetToolButtonsEnabled(true);
             SetActiveButton(button1);
 
             moveType = MoveType.Draw;
@@ -278,10 +277,12 @@ namespace WinFormsApp17
         {
             currentTarget = TargetType.Road;     // 道路
             SetActiveButton((Button)sender);
-            //SetToolButtonsNormalColor();
-            //SetToolButtonsEnabled(true);
-            SetToolButtonsInitialColor();
-            //SetActiveButton(button1);
+          SetToolButtonsInitialColor();
+ 
+            // 用途境OFF
+            isUseBoundaryMode = false;
+            btnUseBoundary.BackColor = SystemColors.Control;
+            btnUseBoundary.ForeColor = SystemColors.ControlLight;
 
             moveType = MoveType.None;
             TargetChanged?.Invoke(currentTarget);
@@ -293,8 +294,16 @@ namespace WinFormsApp17
             currentTarget = TargetType.Building;
             SetActiveButton((Button)sender);
             SetToolButtonsNormalColor();
-            //SetToolButtonsEnabled(true);
+
+            // 例外処理　用途境ボタン表示
+            btnUseBoundary.ForeColor = SystemColors.ControlLight;
+
             SetActiveButton(button1);
+
+            // 用途境OFF
+            isUseBoundaryMode = false;
+            btnUseBoundary.BackColor = SystemColors.Control;
+            btnUseBoundary.ForeColor = SystemColors.ControlLight;
 
             moveType = MoveType.Draw;
             TargetChanged?.Invoke(currentTarget);
@@ -334,5 +343,29 @@ namespace WinFormsApp17
             button13.PerformClick();
         }
 
+        private void Button15_Click(object sender, EventArgs e)
+        {
+            BackgroundToggleClicked?.Invoke();
+        }
+
+        private void btnUseBoundary_Click(object sender, EventArgs e)
+        {
+            if (currentTarget != TargetType.Site)
+                return;
+
+            isUseBoundaryMode = !isUseBoundaryMode;
+
+            if (isUseBoundaryMode)
+            {
+                btnUseBoundary.BackColor = Color.Orange;
+                btnUseBoundary.ForeColor = Color.White;
+            }
+            else
+            {
+                btnUseBoundary.BackColor = SystemColors.Control;
+                btnUseBoundary.ForeColor = SystemColors.ControlText;
+            }
+
+        }
     }
 }
