@@ -37,7 +37,7 @@
             label1.AutoSize = true;
             label1.BackColor = SystemColors.Control;
             label1.Font = new Font("Yu Gothic UI", 12F, FontStyle.Regular, GraphicsUnit.Point, 128);
-            label1.Location = new Point(26, 16);
+            label1.Location = new Point(39, 9);
             label1.Name = "label1";
             label1.Size = new Size(52, 28);
             label1.TabIndex = 0;
@@ -45,7 +45,7 @@
             // 
             // radiusBox
             // 
-            radiusBox.Location = new Point(129, 17);
+            radiusBox.Location = new Point(132, 10);
             radiusBox.Name = "radiusBox";
             radiusBox.Size = new Size(125, 27);
             radiusBox.TabIndex = 1;
@@ -55,7 +55,7 @@
             // 
             AutoScaleDimensions = new SizeF(8F, 20F);
             AutoScaleMode = AutoScaleMode.Font;
-            ClientSize = new Size(303, 63);
+            ClientSize = new Size(326, 44);
             Controls.Add(radiusBox);
             Controls.Add(label1);
             Name = "Form4";

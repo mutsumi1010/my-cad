@@ -8,7 +8,12 @@ namespace WinFormsApp17
 
         private decimal targetSiteAreaM;
 
+        private List<Control> siteOnlyControls;
+        private List<Control> buildingHiddenControls;
+        private List<Control> buildingOnlyControls;
+
         public Action? RequestRedraw { get; set; }
+        public Action? RequestKariSen { get; set; }
 
         public Form5(LineManager lineManager)
         {
@@ -44,11 +49,182 @@ namespace WinFormsApp17
             textBox13.TextAlign = HorizontalAlignment.Right;
             textBox14.TextAlign = HorizontalAlignment.Right;
             textBox16.TextAlign = HorizontalAlignment.Right;
-
+            textBox17.TextAlign = HorizontalAlignment.Right;
+            textBox18.TextAlign = HorizontalAlignment.Right;
 
             comboBox1.SelectedIndex = -1;
+
+            // 「用途地域」「道路」ブロック（敷地モードのみ表示）
+            siteOnlyControls = new List<Control>
+            {
+                label12, comboBox1, label23, textBox10, label24,
+                label17, textBox9, label18,
+                label21, textBox11, label25, label26,
+                label27, comboBox2, label30, textBox12, label32,
+                label28, textBox14, label31,
+                label29, textBox16, label33,
+                label34,
+                label13, textBox7, label14,
+                label15, textBox8, label16
+            };
+
+            // 建物モードでは不要な項目（敷地_面積計算／面積合わせ／建蔽率）
+            buildingHiddenControls = new List<Control>
+            {
+                button1, textBox1, label1,     // 敷地_面積計算
+                button2, textBox13, label22,   // 敷地⇒面積合わせ
+                label4, textBox3, label10,     // 建蔽率
+                label5, textBox4, label11,     // [採用] 容積率
+                label19                        // 上の区切り線
+            };
+
+            // 建物モードでのみ表示する項目
+            buildingOnlyControls = new List<Control>
+            {
+                label35, textBox17, label36,
+                label37, textBox18, label38,
+                button3,
+                button4, textBox19, label39
+            };
+
+            // 起動直後は敷地モード扱いにしておく
+            SetTarget(TargetType.Site);
+
+
+            //TESTCODE
+           // label2.Text = "敷地面積【2】";
+           // label21.Text = "敷地面積【21】";
+            //label29.Text = "敷地面積【29】";
         }
 
+        //==========================
+        //  ターゲット切り替え
+        //==========================
+        /*   public void SetTarget(TargetType target)
+           {
+               bool isBuilding = target == TargetType.Building;
+
+               foreach (var c in siteOnlyControls)
+                   c.Visible = !isBuilding;
+
+               foreach (var c in buildingHiddenControls)
+                   c.Visible = !isBuilding;
+
+               foreach (var c in buildingOnlyControls)
+                   c.Visible = isBuilding;
+
+               if (isBuilding)
+               {
+                   // 建物モード用の並び順（上に詰める）
+                   // 敷地面積 → 許容建築面積 → 建築面積（実際） → 許容延床面積 → 延床面積（実際）
+                   label2.Location = new Point(87, 40);
+                   textBox2.Location = new Point(244, 40);
+                   label3.Location = new Point(346, 34);
+
+                   label6.Location = new Point(87, 73);
+                   textBox5.Location = new Point(244, 73);
+                   label8.Location = new Point(346, 67);
+
+                   label35.Location = new Point(87, 106);
+                   textBox17.Location = new Point(244, 106);
+                   label36.Location = new Point(346, 100);
+
+                   label7.Location = new Point(87, 139);
+                   textBox6.Location = new Point(244, 139);
+                   label9.Location = new Point(346, 133);
+
+                   label37.Location = new Point(87, 172);
+                   textBox18.Location = new Point(244, 172);
+                   label38.Location = new Point(346, 166);
+               }
+               else
+               {
+                   // 敷地モードの元の並び順
+                   label2.Location = new Point(87, 122);
+                   textBox2.Location = new Point(244, 122);
+                   label3.Location = new Point(346, 120);
+
+                   label6.Location = new Point(87, 220);
+                   textBox5.Location = new Point(244, 222);
+                   label8.Location = new Point(346, 216);
+
+                   label7.Location = new Point(87, 252);
+                   textBox6.Location = new Point(244, 255);
+                   label9.Location = new Point(346, 249);
+
+                   label35.Location = new Point(87, 310);
+                   textBox17.Location = new Point(244, 312);
+                   label36.Location = new Point(346, 306);
+
+                   label37.Location = new Point(87, 350);
+                   textBox18.Location = new Point(244, 352);
+                   label38.Location = new Point(346, 346);
+               }
+           }*/
+
+        //==========================
+        //  ターゲット切り替え
+        //==========================
+        public void SetTarget(TargetType target)
+        {
+            bool isBuilding = target == TargetType.Building;
+
+            foreach (var c in siteOnlyControls)
+                c.Visible = !isBuilding;
+
+            foreach (var c in buildingHiddenControls)
+                c.Visible = !isBuilding;
+
+            foreach (var c in buildingOnlyControls)
+                c.Visible = isBuilding;
+
+            if (isBuilding)
+            {
+                // 建物モード用の並び順（上に詰める）
+                label2.Location = new Point(30, 40);
+                textBox2.Location = new Point(188, 40);
+                label3.Location = new Point(295, 34);
+
+                label6.Location = new Point(30, 73);
+                textBox5.Location = new Point(188, 73);
+                label8.Location = new Point(295, 67);
+
+                label35.Location = new Point(30, 106);
+                textBox17.Location = new Point(188, 106);
+                label36.Location = new Point(295, 100);
+
+                label7.Location = new Point(30, 139);
+                textBox6.Location = new Point(188, 139);
+                label9.Location = new Point(295, 133);
+
+                label37.Location = new Point(30, 172);
+                textBox18.Location = new Point(188, 172);
+                label38.Location = new Point(295, 166);
+            }
+            else
+            {
+                // 敷地モードの並び順
+                label2.Location = new Point(30, 122);
+                textBox2.Location = new Point(188, 122);
+                label3.Location = new Point(295, 120);
+
+                label6.Location = new Point(30, 220);
+                textBox5.Location = new Point(188, 222);
+                label8.Location = new Point(295, 216);
+
+                label7.Location = new Point(30, 252);
+                textBox6.Location = new Point(188, 255);
+                label9.Location = new Point(295, 249);
+
+                label35.Location = new Point(30, 310);
+                textBox17.Location = new Point(188, 312);
+                label36.Location = new Point(295, 306);
+
+                label37.Location = new Point(30, 350);
+                textBox18.Location = new Point(188, 352);
+                label38.Location = new Point(295, 346);
+            }
+        }
         private void comboBox1_SelectedIndexChanged(object sender, EventArgs e)
         {
             textBox7_TextChanged(sender, e);
@@ -58,6 +234,9 @@ namespace WinFormsApp17
         {
             // 自動生成
         }
+
+
+
 
         //------------------------
         //   ボタン1　クリック
@@ -237,40 +416,6 @@ namespace WinFormsApp17
                 ))
                 .ToList();
 
-            ///////////////////////////////////
-            ///
-            // 元の点（重複除去して3点だけ取る）
-            /*var originalPoints = siteLines
-                  .SelectMany(seg => new[] { seg.start, seg.end })
-             //     .Distinct()
-                 .ToList();
-
-          /*   // 変換後の点
-             var scaledPoints = scaledSiteLines
-                 .SelectMany(seg => new[] { seg.A, seg.B })
-                 .Distinct()
-                 .ToList();
-
-             // 表示用文字列作成
-             string msg = "【元の点】\n";
-             for (int i = 0; i < originalPoints.Count; i++)
-             {
-                 msg += $"P{i}: ({originalPoints[i].x}, {originalPoints[i].y})\n";
-             }
-
-             msg += $"\n【重心】\n({centroid.x}, {centroid.y})\n";
-
-             msg += "\n【変換後の点】\n";
-             for (int i = 0; i < scaledPoints.Count; i++)
-             {
-                 msg += $"P{i}: ({scaledPoints[i].x}, {scaledPoints[i].y})\n";
-             }
-
-             MessageBox.Show(msg);
-             */////////////////////////////////////////////////
-
-
-
             // Layer 1 の線を先に退避
             var oldSiteLines = lineManager.decFile
                 .Where(l => l.Layer == (int)LineManager.LayerType.Site)
@@ -296,6 +441,14 @@ namespace WinFormsApp17
             // 再描画
             RequestRedraw?.Invoke();
 
+        }
+
+        //------------------------------
+        // ボタン3クリック（仮線作図ボタン）
+        //------------------------------
+        private void button3_Click(object sender, EventArgs e)
+        {
+            RequestKariSen?.Invoke();
         }
         private PointDec ScalePointFromCenter(PointDec p, PointDec center, decimal scale)
         {
@@ -393,6 +546,39 @@ namespace WinFormsApp17
         private void textBox11_TextChanged(object sender, EventArgs e)
         {
 
+        }
+
+        private void button4_Click(object sender, EventArgs e)
+        {
+            // 建築面積＿計算
+            try
+            {
+                var buildingLines =
+                    lineManager.decFile
+                        .Where(l => l.Layer == (int)LineManager.LayerType.Building)
+                        .Select(l => (l.start, l.end))
+                        .ToList();
+
+                if (buildingLines.Count < 3)
+                {
+                    MessageBox.Show("建物の線が足りません。");
+                    return;
+                }
+
+                decimal area = AreaCalculator.CalcAreaFromSegments(buildingLines);
+                decimal areaM = area / 1000000m;
+                areaM = Math.Round(areaM, 2, MidpointRounding.AwayFromZero);
+                textBox19.Text = areaM.ToString("#,##0.00");
+            }
+            catch (Exception ex)
+            {
+                MessageBox.Show(
+                    "建築面積の計算に失敗しました。\n" + ex.Message,
+                    "エラー",
+                    MessageBoxButtons.OK,
+                    MessageBoxIcon.Error
+                );
+            }
         }
     }
 }

@@ -47,14 +47,20 @@ namespace WinFormsApp17
                 _ => 3 // デフォルトは建物
             };
         }
+
         public bool IsBackgroundLayer(int layer)
         {
-            return layer == 8;  //背景用DXF
+            return layer == 8;  //背景用DXF（将来、編集可能/ロック/非表示を切替予定）
+        }
+
+        public bool IsGuideLayer(int layer)
+        {
+            return layer == 9;  //仮線（下書き・常に編集不可）
         }
 
         public bool IsEditable(LineEntity line)
         {
-            return !IsBackgroundLayer(line.Layer);
+            return !IsBackgroundLayer(line.Layer) && !IsGuideLayer(line.Layer);
         }
 
         //==========================
@@ -118,6 +124,10 @@ namespace WinFormsApp17
         public void RemoveLine(LineEntity line)
         {
             if (!IsEditable(line))
+                return;
+
+            // ★ 建物モードのときは敷地ライン（Layer 1）を消去禁止
+            if (TargetM == TargetType.Building && line.Layer == (int)LayerType.Site)
                 return;
 
             // 共通の描画用リスト

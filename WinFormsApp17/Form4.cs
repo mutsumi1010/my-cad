@@ -18,6 +18,7 @@
             this.BackColor = Color.FromArgb(230, 230, 230);
             this.AutoScaleMode = AutoScaleMode.None;
             label1.BackColor = Color.FromArgb(230, 230, 230);
+            
             // フォーカス設定
             this.Shown += (s, e) =>
             {

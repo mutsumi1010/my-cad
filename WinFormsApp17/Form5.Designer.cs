@@ -81,12 +81,22 @@
             label32 = new Label();
             label33 = new Label();
             label34 = new Label();
+            label35 = new Label();
+            textBox17 = new TextBox();
+            label36 = new Label();
+            label37 = new Label();
+            textBox18 = new TextBox();
+            label38 = new Label();
+            button3 = new Button();
+            button4 = new Button();
+            textBox19 = new TextBox();
+            label39 = new Label();
             SuspendLayout();
             // 
             // button1
             // 
             button1.Font = new Font("Yu Gothic UI", 12F);
-            button1.Location = new Point(84, 22);
+            button1.Location = new Point(30, 22);
             button1.Name = "button1";
             button1.Size = new Size(154, 38);
             button1.TabIndex = 0;
@@ -98,7 +108,7 @@
             // 
             textBox1.BackColor = SystemColors.Control;
             textBox1.Font = new Font("Yu Gothic UI", 13.8F, FontStyle.Bold, GraphicsUnit.Point, 128);
-            textBox1.Location = new Point(244, 22);
+            textBox1.Location = new Point(188, 22);
             textBox1.Name = "textBox1";
             textBox1.ReadOnly = true;
             textBox1.Size = new Size(96, 38);
@@ -110,7 +120,7 @@
             // 
             label1.AutoSize = true;
             label1.Font = new Font("Yu Gothic UI", 13.8F, FontStyle.Regular, GraphicsUnit.Point, 128);
-            label1.Location = new Point(346, 28);
+            label1.Location = new Point(295, 28);
             label1.Name = "label1";
             label1.Size = new Size(37, 31);
             label1.TabIndex = 2;
@@ -121,7 +131,7 @@
             // 
             label2.AutoSize = true;
             label2.Font = new Font("Yu Gothic UI", 12F);
-            label2.Location = new Point(87, 122);
+            label2.Location = new Point(30, 122);
             label2.Name = "label2";
             label2.Size = new Size(92, 28);
             label2.TabIndex = 3;
@@ -129,7 +139,7 @@
             // 
             // textBox2
             // 
-            textBox2.Location = new Point(244, 122);
+            textBox2.Location = new Point(188, 122);
             textBox2.Name = "textBox2";
             textBox2.Size = new Size(96, 27);
             textBox2.TabIndex = 4;
@@ -138,7 +148,7 @@
             // 
             label3.AutoSize = true;
             label3.Font = new Font("Yu Gothic UI", 13.8F, FontStyle.Regular, GraphicsUnit.Point, 128);
-            label3.Location = new Point(346, 120);
+            label3.Location = new Point(295, 120);
             label3.Name = "label3";
             label3.Size = new Size(37, 31);
             label3.TabIndex = 2;
@@ -149,7 +159,7 @@
             // 
             label4.AutoSize = true;
             label4.Font = new Font("Yu Gothic UI", 12F);
-            label4.Location = new Point(87, 155);
+            label4.Location = new Point(30, 155);
             label4.Name = "label4";
             label4.Size = new Size(72, 28);
             label4.TabIndex = 3;
@@ -159,7 +169,7 @@
             // 
             label5.AutoSize = true;
             label5.Font = new Font("Yu Gothic UI", 12F);
-            label5.Location = new Point(87, 187);
+            label5.Location = new Point(30, 187);
             label5.Name = "label5";
             label5.Size = new Size(129, 28);
             label5.TabIndex = 3;
@@ -167,7 +177,7 @@
             // 
             // textBox4
             // 
-            textBox4.Location = new Point(244, 188);
+            textBox4.Location = new Point(188, 188);
             textBox4.Name = "textBox4";
             textBox4.Size = new Size(96, 27);
             textBox4.TabIndex = 4;
@@ -176,7 +186,7 @@
             // 
             label6.AutoSize = true;
             label6.Font = new Font("Yu Gothic UI", 12F);
-            label6.Location = new Point(87, 220);
+            label6.Location = new Point(30, 220);
             label6.Name = "label6";
             label6.Size = new Size(132, 28);
             label6.TabIndex = 3;
@@ -187,7 +197,7 @@
             // 
             label7.AutoSize = true;
             label7.Font = new Font("Yu Gothic UI", 12F);
-            label7.Location = new Point(87, 252);
+            label7.Location = new Point(30, 252);
             label7.Name = "label7";
             label7.Size = new Size(132, 28);
             label7.TabIndex = 3;
@@ -196,7 +206,7 @@
             // 
             // textBox5
             // 
-            textBox5.Location = new Point(244, 222);
+            textBox5.Location = new Point(188, 222);
             textBox5.Name = "textBox5";
             textBox5.ReadOnly = true;
             textBox5.Size = new Size(96, 27);
@@ -205,7 +215,7 @@
             // 
             // textBox6
             // 
-            textBox6.Location = new Point(244, 255);
+            textBox6.Location = new Point(188, 255);
             textBox6.Name = "textBox6";
             textBox6.ReadOnly = true;
             textBox6.Size = new Size(96, 27);
@@ -215,7 +225,7 @@
             // 
             label8.AutoSize = true;
             label8.Font = new Font("Yu Gothic UI", 13.8F, FontStyle.Regular, GraphicsUnit.Point, 128);
-            label8.Location = new Point(346, 216);
+            label8.Location = new Point(295, 216);
             label8.Name = "label8";
             label8.Size = new Size(37, 31);
             label8.TabIndex = 2;
@@ -226,7 +236,7 @@
             // 
             label9.AutoSize = true;
             label9.Font = new Font("Yu Gothic UI", 13.8F, FontStyle.Regular, GraphicsUnit.Point, 128);
-            label9.Location = new Point(346, 249);
+            label9.Location = new Point(295, 249);
             label9.Name = "label9";
             label9.Size = new Size(37, 31);
             label9.TabIndex = 2;
@@ -237,7 +247,7 @@
             // 
             label10.AutoSize = true;
             label10.Font = new Font("Yu Gothic UI", 13.8F, FontStyle.Regular, GraphicsUnit.Point, 128);
-            label10.Location = new Point(346, 156);
+            label10.Location = new Point(295, 156);
             label10.Name = "label10";
             label10.Size = new Size(37, 31);
             label10.TabIndex = 2;
@@ -248,7 +258,7 @@
             // 
             label11.AutoSize = true;
             label11.Font = new Font("Yu Gothic UI", 13.8F, FontStyle.Regular, GraphicsUnit.Point, 128);
-            label11.Location = new Point(346, 187);
+            label11.Location = new Point(295, 187);
             label11.Name = "label11";
             label11.Size = new Size(37, 31);
             label11.TabIndex = 2;
@@ -259,7 +269,7 @@
             // 
             label12.AutoSize = true;
             label12.Font = new Font("Yu Gothic UI", 10.8F, FontStyle.Regular, GraphicsUnit.Point, 128);
-            label12.Location = new Point(87, 310);
+            label12.Location = new Point(30, 310);
             label12.Name = "label12";
             label12.Size = new Size(102, 25);
             label12.TabIndex = 3;
@@ -269,7 +279,7 @@
             // 
             comboBox1.FormattingEnabled = true;
             comboBox1.Items.AddRange(new object[] { "第一種低層住居専用地域", "第二種低層住居専用地域", "第一種中高層住居専用地域", "第二種中高層住居専用地域", "第一種住居地域", "第二種住居地域", "準住居地域", "田園住居地域", "近隣商業地域", "商業地域", "準工業地域", "工業地域", "工業専用地域" });
-            comboBox1.Location = new Point(189, 310);
+            comboBox1.Location = new Point(132, 310);
             comboBox1.Name = "comboBox1";
             comboBox1.Size = new Size(194, 28);
             comboBox1.TabIndex = 5;
@@ -279,7 +289,7 @@
             // 
             label13.AutoSize = true;
             label13.Font = new Font("Yu Gothic UI", 10.8F);
-            label13.Location = new Point(87, 561);
+            label13.Location = new Point(30, 561);
             label13.Name = "label13";
             label13.Size = new Size(84, 25);
             label13.TabIndex = 3;
@@ -288,7 +298,7 @@
             // 
             // textBox7
             // 
-            textBox7.Location = new Point(244, 561);
+            textBox7.Location = new Point(188, 561);
             textBox7.Name = "textBox7";
             textBox7.Size = new Size(96, 27);
             textBox7.TabIndex = 4;
@@ -299,7 +309,7 @@
             // 
             label14.AutoSize = true;
             label14.Font = new Font("Yu Gothic UI", 13.8F, FontStyle.Regular, GraphicsUnit.Point, 128);
-            label14.Location = new Point(337, 561);
+            label14.Location = new Point(295, 561);
             label14.Name = "label14";
             label14.Size = new Size(37, 31);
             label14.TabIndex = 2;
@@ -310,7 +320,7 @@
             // 
             label15.AutoSize = true;
             label15.Font = new Font("Yu Gothic UI", 10.8F);
-            label15.Location = new Point(87, 586);
+            label15.Location = new Point(30, 586);
             label15.Name = "label15";
             label15.Size = new Size(144, 25);
             label15.TabIndex = 3;
@@ -319,7 +329,7 @@
             // 
             // textBox8
             // 
-            textBox8.Location = new Point(243, 588);
+            textBox8.Location = new Point(188, 588);
             textBox8.Name = "textBox8";
             textBox8.Size = new Size(96, 27);
             textBox8.TabIndex = 4;
@@ -329,7 +339,7 @@
             // 
             label16.AutoSize = true;
             label16.Font = new Font("Yu Gothic UI", 13.8F, FontStyle.Regular, GraphicsUnit.Point, 128);
-            label16.Location = new Point(337, 586);
+            label16.Location = new Point(295, 586);
             label16.Name = "label16";
             label16.Size = new Size(37, 31);
             label16.TabIndex = 2;
@@ -340,7 +350,7 @@
             // 
             label17.AutoSize = true;
             label17.Font = new Font("Yu Gothic UI", 10.8F);
-            label17.Location = new Point(95, 366);
+            label17.Location = new Point(30, 366);
             label17.Name = "label17";
             label17.Size = new Size(66, 25);
             label17.TabIndex = 3;
@@ -349,7 +359,7 @@
             // 
             // textBox9
             // 
-            textBox9.Location = new Point(241, 368);
+            textBox9.Location = new Point(188, 368);
             textBox9.Name = "textBox9";
             textBox9.Size = new Size(96, 27);
             textBox9.TabIndex = 4;
@@ -359,7 +369,7 @@
             // 
             label18.AutoSize = true;
             label18.Font = new Font("Yu Gothic UI", 13.8F, FontStyle.Regular, GraphicsUnit.Point, 128);
-            label18.Location = new Point(346, 366);
+            label18.Location = new Point(295, 366);
             label18.Name = "label18";
             label18.Size = new Size(37, 31);
             label18.TabIndex = 2;
@@ -368,7 +378,7 @@
             // 
             // textBox3
             // 
-            textBox3.Location = new Point(244, 155);
+            textBox3.Location = new Point(188, 155);
             textBox3.Name = "textBox3";
             textBox3.Size = new Size(96, 27);
             textBox3.TabIndex = 4;
@@ -378,7 +388,7 @@
             // button2
             // 
             button2.Font = new Font("Yu Gothic UI", 10.2F, FontStyle.Regular, GraphicsUnit.Point, 128);
-            button2.Location = new Point(84, 66);
+            button2.Location = new Point(30, 66);
             button2.Name = "button2";
             button2.Size = new Size(154, 38);
             button2.TabIndex = 0;
@@ -388,7 +398,7 @@
             // 
             // textBox13
             // 
-            textBox13.Location = new Point(244, 73);
+            textBox13.Location = new Point(188, 73);
             textBox13.Name = "textBox13";
             textBox13.Size = new Size(96, 27);
             textBox13.TabIndex = 4;
@@ -398,7 +408,7 @@
             // 
             label22.AutoSize = true;
             label22.Font = new Font("Yu Gothic UI", 13.8F, FontStyle.Regular, GraphicsUnit.Point, 128);
-            label22.Location = new Point(346, 73);
+            label22.Location = new Point(295, 73);
             label22.Name = "label22";
             label22.Size = new Size(37, 31);
             label22.TabIndex = 2;
@@ -409,7 +419,7 @@
             // 
             label23.AutoSize = true;
             label23.Font = new Font("Yu Gothic UI", 10.8F);
-            label23.Location = new Point(95, 341);
+            label23.Location = new Point(30, 341);
             label23.Name = "label23";
             label23.Size = new Size(66, 25);
             label23.TabIndex = 3;
@@ -418,7 +428,7 @@
             // 
             // textBox10
             // 
-            textBox10.Location = new Point(241, 341);
+            textBox10.Location = new Point(188, 341);
             textBox10.Name = "textBox10";
             textBox10.Size = new Size(96, 27);
             textBox10.TabIndex = 6;
@@ -427,7 +437,7 @@
             // 
             label24.AutoSize = true;
             label24.Font = new Font("Yu Gothic UI", 13.8F, FontStyle.Regular, GraphicsUnit.Point, 128);
-            label24.Location = new Point(346, 339);
+            label24.Location = new Point(295, 339);
             label24.Name = "label24";
             label24.Size = new Size(37, 31);
             label24.TabIndex = 2;
@@ -438,7 +448,7 @@
             // 
             label19.AutoSize = true;
             label19.Font = new Font("Yu Gothic UI", 7.8F, FontStyle.Bold, GraphicsUnit.Point, 128);
-            label19.Location = new Point(84, 107);
+            label19.Location = new Point(30, 107);
             label19.Name = "label19";
             label19.Size = new Size(283, 17);
             label19.TabIndex = 7;
@@ -448,7 +458,7 @@
             // 
             label20.AutoSize = true;
             label20.Font = new Font("Yu Gothic UI", 7.8F, FontStyle.Regular, GraphicsUnit.Point, 128);
-            label20.Location = new Point(87, 293);
+            label20.Location = new Point(30, 293);
             label20.Name = "label20";
             label20.Size = new Size(278, 17);
             label20.TabIndex = 7;
@@ -459,7 +469,7 @@
             // 
             label21.AutoSize = true;
             label21.Font = new Font("Yu Gothic UI", 10.8F);
-            label21.Location = new Point(95, 394);
+            label21.Location = new Point(30, 394);
             label21.Name = "label21";
             label21.Size = new Size(84, 25);
             label21.TabIndex = 3;
@@ -468,7 +478,7 @@
             // 
             // textBox11
             // 
-            textBox11.Location = new Point(241, 395);
+            textBox11.Location = new Point(188, 395);
             textBox11.Name = "textBox11";
             textBox11.Size = new Size(98, 27);
             textBox11.TabIndex = 8;
@@ -478,7 +488,7 @@
             // 
             label25.AutoSize = true;
             label25.Font = new Font("Yu Gothic UI", 13.8F, FontStyle.Regular, GraphicsUnit.Point, 128);
-            label25.Location = new Point(346, 397);
+            label25.Location = new Point(295, 397);
             label25.Name = "label25";
             label25.Size = new Size(37, 31);
             label25.TabIndex = 2;
@@ -489,7 +499,7 @@
             // 
             label26.AutoSize = true;
             label26.Font = new Font("Yu Gothic UI", 13.8F, FontStyle.Regular, GraphicsUnit.Point, 128);
-            label26.Location = new Point(346, 392);
+            label26.Location = new Point(295, 392);
             label26.Name = "label26";
             label26.Size = new Size(37, 31);
             label26.TabIndex = 2;
@@ -500,7 +510,7 @@
             // 
             label27.AutoSize = true;
             label27.Font = new Font("Yu Gothic UI", 10.8F, FontStyle.Regular, GraphicsUnit.Point, 128);
-            label27.Location = new Point(87, 426);
+            label27.Location = new Point(30, 426);
             label27.Name = "label27";
             label27.Size = new Size(102, 25);
             label27.TabIndex = 3;
@@ -511,7 +521,7 @@
             // 
             label28.AutoSize = true;
             label28.Font = new Font("Yu Gothic UI", 10.8F);
-            label28.Location = new Point(95, 486);
+            label28.Location = new Point(30, 486);
             label28.Name = "label28";
             label28.Size = new Size(66, 25);
             label28.TabIndex = 3;
@@ -522,7 +532,7 @@
             // 
             label29.AutoSize = true;
             label29.Font = new Font("Yu Gothic UI", 10.8F);
-            label29.Location = new Point(95, 511);
+            label29.Location = new Point(30, 511);
             label29.Name = "label29";
             label29.Size = new Size(84, 25);
             label29.TabIndex = 3;
@@ -533,7 +543,7 @@
             // 
             label30.AutoSize = true;
             label30.Font = new Font("Yu Gothic UI", 10.8F);
-            label30.Location = new Point(95, 461);
+            label30.Location = new Point(30, 461);
             label30.Name = "label30";
             label30.Size = new Size(66, 25);
             label30.TabIndex = 3;
@@ -544,28 +554,28 @@
             // 
             comboBox2.FormattingEnabled = true;
             comboBox2.Items.AddRange(new object[] { "第一種低層住居専用地域", "第二種低層住居専用地域", "第一種中高層住居専用地域", "第二種中高層住居専用地域", "第一種住居地域", "第二種住居地域", "準住居地域", "田園住居地域", "近隣商業地域", "商業地域", "準工業地域", "工業地域", "工業専用地域" });
-            comboBox2.Location = new Point(189, 425);
+            comboBox2.Location = new Point(132, 425);
             comboBox2.Name = "comboBox2";
             comboBox2.Size = new Size(194, 28);
             comboBox2.TabIndex = 9;
             // 
             // textBox12
             // 
-            textBox12.Location = new Point(241, 459);
+            textBox12.Location = new Point(188, 459);
             textBox12.Name = "textBox12";
             textBox12.Size = new Size(95, 27);
             textBox12.TabIndex = 10;
             // 
             // textBox14
             // 
-            textBox14.Location = new Point(241, 486);
+            textBox14.Location = new Point(188, 486);
             textBox14.Name = "textBox14";
             textBox14.Size = new Size(95, 27);
             textBox14.TabIndex = 11;
             // 
             // textBox16
             // 
-            textBox16.Location = new Point(241, 513);
+            textBox16.Location = new Point(188, 513);
             textBox16.Name = "textBox16";
             textBox16.Size = new Size(95, 27);
             textBox16.TabIndex = 13;
@@ -574,7 +584,7 @@
             // 
             label31.AutoSize = true;
             label31.Font = new Font("Yu Gothic UI", 13.8F, FontStyle.Regular, GraphicsUnit.Point, 128);
-            label31.Location = new Point(346, 487);
+            label31.Location = new Point(295, 487);
             label31.Name = "label31";
             label31.Size = new Size(37, 31);
             label31.TabIndex = 2;
@@ -585,7 +595,7 @@
             // 
             label32.AutoSize = true;
             label32.Font = new Font("Yu Gothic UI", 13.8F, FontStyle.Regular, GraphicsUnit.Point, 128);
-            label32.Location = new Point(346, 460);
+            label32.Location = new Point(295, 460);
             label32.Name = "label32";
             label32.Size = new Size(37, 31);
             label32.TabIndex = 2;
@@ -596,7 +606,7 @@
             // 
             label33.AutoSize = true;
             label33.Font = new Font("Yu Gothic UI", 13.8F, FontStyle.Regular, GraphicsUnit.Point, 128);
-            label33.Location = new Point(346, 513);
+            label33.Location = new Point(295, 513);
             label33.Name = "label33";
             label33.Size = new Size(37, 31);
             label33.TabIndex = 2;
@@ -607,18 +617,123 @@
             // 
             label34.AutoSize = true;
             label34.Font = new Font("Yu Gothic UI", 7.8F, FontStyle.Regular, GraphicsUnit.Point, 128);
-            label34.Location = new Point(87, 544);
+            label34.Location = new Point(30, 544);
             label34.Name = "label34";
             label34.Size = new Size(278, 17);
             label34.TabIndex = 7;
             label34.Text = "------------------------------------------------------";
             label34.Click += label20_Click;
             // 
+            // label35
+            // 
+            label35.AutoSize = true;
+            label35.Font = new Font("Yu Gothic UI", 12F);
+            label35.Location = new Point(30, 310);
+            label35.Name = "label35";
+            label35.Size = new Size(172, 28);
+            label35.TabIndex = 3;
+            label35.Text = "建築面積（実際）";
+            // 
+            // textBox17
+            // 
+            textBox17.Location = new Point(188, 312);
+            textBox17.Name = "textBox17";
+            textBox17.ReadOnly = true;
+            textBox17.Size = new Size(96, 27);
+            textBox17.TabIndex = 14;
+            // 
+            // label36
+            // 
+            label36.AutoSize = true;
+            label36.Font = new Font("Yu Gothic UI", 13.8F, FontStyle.Regular, GraphicsUnit.Point, 128);
+            label36.Location = new Point(295, 306);
+            label36.Name = "label36";
+            label36.Size = new Size(37, 31);
+            label36.TabIndex = 2;
+            label36.Text = "㎡";
+            // 
+            // label37
+            // 
+            label37.AutoSize = true;
+            label37.Font = new Font("Yu Gothic UI", 12F);
+            label37.Location = new Point(30, 350);
+            label37.Name = "label37";
+            label37.Size = new Size(172, 28);
+            label37.TabIndex = 3;
+            label37.Text = "延床面積（実際）";
+            // 
+            // textBox18
+            // 
+            textBox18.Location = new Point(188, 352);
+            textBox18.Name = "textBox18";
+            textBox18.ReadOnly = true;
+            textBox18.Size = new Size(96, 27);
+            textBox18.TabIndex = 15;
+            // 
+            // label38
+            // 
+            label38.AutoSize = true;
+            label38.Font = new Font("Yu Gothic UI", 13.8F, FontStyle.Regular, GraphicsUnit.Point, 128);
+            label38.Location = new Point(295, 346);
+            label38.Name = "label38";
+            label38.Size = new Size(37, 31);
+            label38.TabIndex = 2;
+            label38.Text = "㎡";
+            // 
+            // button3
+            // 
+            button3.Font = new Font("Yu Gothic UI", 10.8F);
+            button3.Location = new Point(30, 210);
+            button3.Name = "button3";
+            button3.Size = new Size(154, 38);
+            button3.TabIndex = 16;
+            button3.Text = "仮線設定";
+            button3.UseVisualStyleBackColor = true;
+            button3.Click += button3_Click;
+            // 
+            // button4
+            // 
+            button4.Font = new Font("Yu Gothic UI", 10.8F);
+            button4.Location = new Point(30, 254);
+            button4.Name = "button4";
+            button4.Size = new Size(154, 38);
+            button4.TabIndex = 17;
+            button4.Text = "建築面積_計算";
+            button4.UseVisualStyleBackColor = true;
+            button4.Click += button4_Click;
+            // 
+            // textBox19
+            // 
+            textBox19.BackColor = SystemColors.Control;
+            textBox19.Location = new Point(188, 264);
+            textBox19.Name = "textBox19";
+            textBox19.ReadOnly = true;
+            textBox19.Size = new Size(96, 27);
+            textBox19.TabIndex = 18;
+            textBox19.TabStop = false;
+            textBox19.TextAlign = HorizontalAlignment.Right;
+            // 
+            // label39
+            // 
+            label39.AutoSize = true;
+            label39.Font = new Font("Yu Gothic UI", 13.8F, FontStyle.Regular, GraphicsUnit.Point, 128);
+            label39.Location = new Point(295, 258);
+            label39.Name = "label39";
+            label39.Size = new Size(37, 31);
+            label39.TabIndex = 2;
+            label39.Text = "㎡";
+            // 
             // Form5
             // 
             AutoScaleDimensions = new SizeF(8F, 20F);
             AutoScaleMode = AutoScaleMode.Font;
-            ClientSize = new Size(395, 757);
+            ClientSize = new Size(341, 757);
+            Controls.Add(textBox18);
+            Controls.Add(label38);
+            Controls.Add(label37);
+            Controls.Add(textBox17);
+            Controls.Add(label36);
+            Controls.Add(label35);
             Controls.Add(textBox16);
             Controls.Add(textBox14);
             Controls.Add(textBox12);
@@ -672,6 +787,10 @@
             Controls.Add(textBox1);
             Controls.Add(button2);
             Controls.Add(button1);
+            Controls.Add(button3);
+            Controls.Add(button4);
+            Controls.Add(textBox19);
+            Controls.Add(label39);
             Name = "Form5";
             Text = "敷地";
             Load += Form5_Load;
@@ -734,5 +853,15 @@
         private Label label32;
         private Label label33;
         private Label label34;
+        private Label label35;
+        private TextBox textBox17;
+        private Label label36;
+        private Label label37;
+        private TextBox textBox18;
+        private Label label38;
+        private Button button3;
+        private Button button4;       // ← 追加
+        private TextBox textBox19;    // ← 追加
+        private Label label39;        // ← 追加
     }
 }

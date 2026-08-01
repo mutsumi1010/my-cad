@@ -3,7 +3,6 @@ using System.Drawing;
 using System.IO;
 using System.Net;
 using System.Text.Json;
-using static System.ComponentModel.Design.ObjectSelectorEditor;
 
 namespace WinFormsApp17
 {
@@ -15,6 +14,7 @@ namespace WinFormsApp17
         bool isFirstClick;
         Form2 form2;
         Form5 form5; // 敷地面積計算Form
+        FormSelectIntersection formRoad02;//道路の交点など
 
         Image pdfImage;
         bool isJpegFirsted;
@@ -33,11 +33,14 @@ namespace WinFormsApp17
         SelectIndex selectIndex;
         EraseManager eraseManager;
         DimensionBuilder dimBuilder;
+        private readonly RangeSelectManager rangeSelectManager;
+
         Function01 function;
         private DimensionMouseHandler dimMouse;
         private DimensionRenderer dimRenderer;
         RoadManager roadManager;
         private ProjectFileManager projectFileManager;
+        private MakeKariSen makeKariSen;   //仮線表示
 
         private DxfLoad dxfLoad;
         private DxfSave dxfSave;
@@ -68,10 +71,18 @@ namespace WinFormsApp17
 
         // ===== 道路 =====
         private bool copyingWidth = false;
+        public bool LoadingRoadWidth { get; set; } //道路Wは表示してるだけ
 
         // ===== Erase Undo =====
         private Stack<(int index, PointDec start, PointDec end)> eraseHistory
             = new Stack<(int, PointDec, PointDec)>(5);
+
+        // ===== CmdKey =====
+        private readonly Dictionary<Keys, Action> shortcutActions
+            = new Dictionary<Keys, Action>();
+
+        // 将来、文字入力コマンド中だけ true にする
+        private bool isTextInputMode = false;
 
         //=============================
         //  Form1() コンストラクタ
@@ -86,7 +97,7 @@ namespace WinFormsApp17
             ClientSize = new Size(1800, 900);
 
             this.form2 = new Form2();
-            form2.ClientSize = new Size(125, 900);
+            form2.ClientSize = new Size(140, 900);
             Controls.Add(form2);
             form2.Location = new Point(10, 10);
             this.form2.Show();
@@ -96,6 +107,10 @@ namespace WinFormsApp17
                 Invalidate();
             };
 
+            // ショートカットキー初期化
+            InitializeShortcuts();
+
+            // データファイル　＊現在未使用
             this.siteDataList = new SiteDataList();
             this.roadDataList = new RoadDataList();
             this.buildingDataList = new BuildingDataList();
@@ -104,6 +119,9 @@ namespace WinFormsApp17
             // マネジャー
             this.lineManager = new LineManager(siteDataList, roadDataList, buildingDataList);
 
+            //
+            // Form5
+            ///
             this.form5 = new Form5(this.lineManager);  // 敷地面積計算
             form5.TopLevel = false;
             form5.FormBorderStyle = FormBorderStyle.None;
@@ -111,7 +129,22 @@ namespace WinFormsApp17
             Controls.Add(form5);
             form5.RequestRedraw = () => this.Invalidate();
             form5.Show();
-            this.projectFileManager = new ProjectFileManager(lineManager, form5);
+            form5.BringToFront();
+            this.PerformLayout();
+            //
+            // FormRoad02 交差点パネル
+            ///
+            this.formRoad02 = new FormSelectIntersection();
+            formRoad02.TopLevel = false;
+            formRoad02.FormBorderStyle = FormBorderStyle.None;
+            formRoad02.Dock = DockStyle.Right;
+            Controls.Add(formRoad02);
+            formRoad02.Hide();
+
+            //ロードマネジャ
+            this.roadManager = new RoadManager(lineManager, scalef, this, formRoad02);
+
+            this.projectFileManager = new ProjectFileManager(lineManager, roadManager, form5);
 
             this.cornerManager = new CornerManager(
                       lineManager, siteDataList,
@@ -131,19 +164,25 @@ namespace WinFormsApp17
             this.function = new Function01(lineManager, this);
 
             this.parallelManager = new ParallelManager(lineManager, GetScale);
-            //this.eraseManager = new EraseManager(lineManager, dataList.DimList, scalef);
             this.eraseManager = new EraseManager(
                     lineManager,
                     dataList.DimList
                  );
+            this.rangeSelectManager = new RangeSelectManager(lineManager);
             this.dimBuilder = new DimensionBuilder();
 
             this.dimMouse = new DimensionMouseHandler(
                      dimBuilder, dataList, function,
                      ScreenToWorld, WorldToScreen, Invalidate);
             this.dimRenderer = new DimensionRenderer();
+            this.makeKariSen = new MakeKariSen(lineManager, roadManager);
+            form5.RequestKariSen = () =>
+            {
+                makeKariSen.Generate();
+                Invalidate();
+            };
 
-            this.roadManager = new RoadManager(lineManager, scalef, this);
+
 
             // セーブ、ロード、プリント
             this.dxfSave = new DxfSave(lineManager, dataList.DimList);
@@ -159,6 +198,8 @@ namespace WinFormsApp17
             this.KeyDown += Form1_KeyDown;
 
             roadlabel2.Visible = false;  // Road 幅員
+
+            // Form2 の　モードチェンジイベント
             form2.ModeChanged += OnModeChanged;
 
             //カテゴリー　道路　のときのメッセージ
@@ -168,9 +209,48 @@ namespace WinFormsApp17
             roadlabel2.Left = labelRoadMessage.Left;
             roadlabel2.Top = labelRoadMessage.Top;
 
+            labelRoadIntersection.Left = labelRoadMessage.Left;
+            labelRoadIntersection.TextAlign = ContentAlignment.MiddleLeft;
+
+            //交点をクリックしてください　表示切り替え
+            labelRoadIntersection.Visible = false;
+
+            formRoad02.IntersectionTypeChanged += type =>
+            {
+                labelRoadIntersection.Visible =
+                    type != RoadIntersectionType.None;
+
+                if (labelRoadIntersection.Visible)
+                {
+                    labelRoadIntersection.BringToFront();
+                }
+            };
+
+            //
+            //   Target Changed
+            //
+
             form2.TargetChanged += t =>
             {
                 lineManager.SetCurrentTarget(t);
+                // 2026 0726
+                form5.SetTarget(t);
+
+                if (t == TargetType.Road)
+                {
+                    form5.Hide();
+                    formRoad02.Show();  //formRoad02 パネル
+                    formRoad02.BringToFront();
+                    this.PerformLayout();
+                }
+                else
+                {
+                    formRoad02.Hide();
+
+                    form5.Show();
+                    form5.BringToFront();
+                    this.PerformLayout();
+                }
 
                 if (t != TargetType.Road)
                 {
@@ -185,6 +265,7 @@ namespace WinFormsApp17
                     RtextBox1.Visible = false;
                     RtextBox2.Visible = false;
                     labelRoadMessage.Visible = false;
+                    labelRoadIntersection.Visible = false;
                 }
                 else
                 {
@@ -193,8 +274,8 @@ namespace WinFormsApp17
                 }
 
                 Invalidate();
-
             };
+
             form2.LoadClicked += () => { dxfLoad.Execute(); Invalidate(); };
             form2.SaveClicked += () => { dxfSave.Execute(); Invalidate(); };
             form2.PrintClicked += () => { printManager.Execute(); };
@@ -216,19 +297,30 @@ namespace WinFormsApp17
             RtextBox1.Visible = false;
             RtextBox2.Visible = false;
 
-            RtextBox1.TextChanged += RtextBox1_TextChanged;
-            RtextBox2.TextChanged += RtextBox2_TextChanged;
+            RtextBox1.TextChanged += RtextBox1_TextChanged; // w1
+            RtextBox2.TextChanged += RtextBox2_TextChanged; // w2
+            textFukusenDistance.TextChanged += textFukusenDistance_TextChanged; // 複線間隔
 
             SetupScaleTextBox();
             UpdateScaleText();
         }
-        //-----------------
-        //  Enter key 
-        //-----------------
-        protected override bool ProcessCmdKey(ref Message msg, Keys keyData)
+ 
+
+        //=================
+        // キー処理
+        //================
+        protected override bool ProcessCmdKey(
+            ref Message msg,
+            Keys keyData)
         {
-            // TextBox がアクティブなら Enter は絶対に奪わない
-            if (keyData == Keys.Enter && this.ActiveControl is TextBox)
+            //--------------------------------------
+            // Enterキー
+            //--------------------------------------
+
+            // TextBoxがアクティブなら、
+            // EnterはTextBox側へ渡す
+            if (keyData == Keys.Enter &&
+                ActiveControl is TextBox)
             {
                 return base.ProcessCmdKey(ref msg, keyData);
             }
@@ -240,12 +332,41 @@ namespace WinFormsApp17
                 {
                     selectIndex.SelectConfirm();
                     Invalidate();
-                    return true;   // Enter を消費
+
+                    return true;
                 }
 
-                // それ以外（円・TextBox入力など）は通常処理へ
                 return base.ProcessCmdKey(ref msg, keyData);
             }
+
+            //----------------------------------------
+            // 将来の文字入力モード
+            //----------------------------------------
+
+            // 文字を入力している最中は、
+            // H・D・Fなどを普通の文字として扱う
+            if (isTextInputMode)
+            {
+                return base.ProcessCmdKey(ref msg, keyData);
+            }
+
+            //---------------------------------------
+            // 作図ショートカット
+            //---------------------------------------
+
+            // ShiftやCtrlなどを除いたキー本体を取得
+            Keys keyCode = keyData & Keys.KeyCode;
+
+            if (shortcutActions.TryGetValue(
+                keyCode,
+                out Action action))
+            {
+                action();
+
+                // TextBoxには文字を入力させない
+                return true;
+            }
+
             return base.ProcessCmdKey(ref msg, keyData);
         }
 
@@ -291,11 +412,38 @@ namespace WinFormsApp17
             var mode = form2.GetMoveType();
 
             //-----------------------------
+            // MouseClick : RangeSelect
+            //-----------------------------
+            if (mode == MoveType.RangeSelect)
+            {
+                PointDec world =
+                    ScreenToWorld(new PointF(e.X, e.Y));
+
+                // ここから範囲選択処理へ
+                rangeSelectManager.OnMouseClick(world,scalef);
+
+                Invalidate();
+                return;
+            }
+
+            //-----------------------------
             //  MouseClick : Road
             //-----------------------------
             if (lineManager.TargetM == TargetType.Road)
             {
                 PointDec world = ScreenToWorld(new PointF(e.X, e.Y));
+
+                if (formRoad02.SelectedIntersectionType != RoadIntersectionType.None)
+                {
+                    roadManager.OnIntersectionClick(
+                        world,
+                        formRoad02.SelectedIntersectionType
+                    );
+
+                    Invalidate();
+                    return;
+                }
+
                 roadManager.OnMouseClick(world);
 
                 // メッセージ切り替え
@@ -310,18 +458,82 @@ namespace WinFormsApp17
                 return;
 
             }
-
+  
             //-----------------------------
-            //  MouseClick : Parallel
+            // MouseClick : Parallel
             //-----------------------------
             if (mode == MoveType.Parallel)
             {
-                PointDec world = ScreenToWorld(new PointF(e.X, e.Y));
+                PointDec world =
+                    ScreenToWorld(new PointF(e.X, e.Y));
 
+                //==========================================
+                // まだ基準線を選択していない
+                //==========================================
+                if (parallelManager.SelectedIndex < 0)
+                {
+                    // 基準線を左クリックした場合は
+                    // 前回の距離を使わず、距離を0にする
+                    if (e.Button == MouseButtons.Left)
+                    {
+                        parallelManager.SetOffsetDistance(0m);
+                        // textFukusenDistance.Text = "0";
+                        // 表示だけ空欄
+                        textFukusenDistance.Clear();
+                    }
+
+                    // 右クリックの場合は、
+                    // 現在の距離をそのまま残して基準線を選択
+                    if (parallelManager.OnMouseClick(world))
+                    {
+                        Invalidate();
+
+                        BeginInvoke(new Action(() =>
+                        {
+                            textFukusenDistance.Focus();
+                            textFukusenDistance.SelectAll();
+                        }));
+                    }
+
+                    return;
+                }
+
+                //==========================================
+                // 基準線を選択済み
+                //==========================================
+
+                // 通過点を右クリックした場合は、
+                // 端点・交点へスナップ
+                if (e.Button == MouseButtons.Right)
+                {
+                    if (function.TrySnapToNearestPoint(
+                        world,
+                        lineManager.decFile,
+                        lineManager.CircleFile,
+                        scalef,
+                        out var snappedDec))
+                    {
+                        world = snappedDec;
+                    }
+                    else
+                    {
+                        MessageBox.Show("点がありません");
+                        return;
+                    }
+                }
+
+                // 距離指定または通過点指定で複線を確定
                 if (parallelManager.OnMouseClick(world))
                 {
                     Invalidate();
+
+                    BeginInvoke(new Action(() =>
+                    {
+                        textFukusenDistance.Focus();
+                        textFukusenDistance.SelectAll();
+                    }));
                 }
+
                 return;
             }
 
@@ -365,30 +577,6 @@ namespace WinFormsApp17
             if (mode == MoveType.Draw)
             {
                 var worldF = ScreenToWorldF(new PointF(e.X, e.Y));
-                //if (e.Button == MouseButtons.Right)
-                //{
-                //    var worldDec = ToWorld(worldF);
-
-                //    // ① まず端点スナップ
-                //    if (function.TrySnapToEndpoint(worldDec, WorldToScreen, out var snappedDec))
-                //    {
-                //        worldF = ToScreen(snappedDec);
-                //    }
-                //    // ② 端点がなければ交点スナップ
-                //    else if (function.TrySnapToIntersectionNear(
-                //        worldDec,
-                //        lineManager.decFile,
-                //        lineManager.CircleFile,   // 円がなければ空リストでOK
-                //        scalef,
-                //        out snappedDec))
-                //    {
-                //        worldF = ToScreen(snappedDec);
-                //    }
-                //    else
-                //    {
-                //        return;
-                //    }
-                //}
                 if (e.Button == MouseButtons.Right)
                 {
                     var worldDec = ToWorld(worldF);
@@ -527,6 +715,21 @@ namespace WinFormsApp17
             var mode = form2.GetMoveType();
 
             //-----------------------------
+            //  MouseMove : RangeSelect
+            //-----------------------------
+
+            if (form2.GetMoveType() == MoveType.RangeSelect &&
+                  rangeSelectManager.IsSelecting)
+            {
+                  PointDec world =
+                     ScreenToWorld(new PointF(e.X, e.Y));
+
+                 rangeSelectManager.OnMouseMove(world);
+
+                 Invalidate();
+            }
+
+            //-----------------------------
             //  MouseMove : Roted
             //-----------------------------
             if (mode == MoveType.Rotate)
@@ -590,9 +793,9 @@ namespace WinFormsApp17
                 e.Graphics.DrawImage(pdfImage, 0, 0);
             }
 
-            //=========================
+            //-------------------------
             //  Paint : 通常の線
-            //=========================
+            //-------------------------
             for (int i = 0; i < lineManager.decFile.Count; i++)
             {
                 var line = lineManager.decFile[i];
@@ -607,28 +810,43 @@ namespace WinFormsApp17
                     1 => new Pen(Color.LimeGreen, 2f / scalef),
                     2 => new Pen(Color.LimeGreen, 2f / scalef),
                     // 8 => new Pen(Color.Gray, 2f / scalef), //DXF背景
-                    8 => new Pen(Color.FromArgb(140, 140, 140), 1f / scalef), //DXF背景 //DXF背景
+                    8 => new Pen(Color.FromArgb(140, 140, 140), 1f / scalef), //DXF背景 
+                    //9 => new Pen(Color.Gray, 1f / scalef) { DashStyle = System.Drawing.Drawing2D.DashStyle.Dash },
+                    9 => new Pen(Color.Gray, 1f / scalef)
+                    {
+                        DashStyle = System.Drawing.Drawing2D.DashStyle.Custom,
+                        DashPattern = new float[] { 8f, 8f }   // 線4:空白8 → 空白が2倍
+                    },
+
                     11 => new Pen(Color.Orange, 1f / scalef),   //用途境
                     _ => new Pen(Color.Black, 2f / scalef),
                 };
 
                 if (mode == MoveType.Parallel && i == parallelManager.SelectedIndex)
+                {
+                    pen.Dispose();
                     pen = new Pen(Color.Red, 2f / scalef);
+                }
+
+                // 範囲選択された線をピンクで表示
+                if (mode == MoveType.RangeSelect &&
+                    rangeSelectManager.SelectedIndices.Contains(i))
+                {
+                    pen.Dispose();
+                    pen = new Pen(Color.Magenta, 2f / scalef);
+                }
 
                 if (mode == MoveType.Corner && i == cornerManager.FirstIndex)
+                {
+                    pen.Dispose();
                     pen = new Pen(Color.Red, 2f / scalef);
+                }
 
                 if (mode == MoveType.Trim && i == trimManager.selectedIndex)
+                {
+                    pen.Dispose();
                     pen = new Pen(Color.Red, 2f / scalef);
-
-                //// 道路カテゴリーで選択中の敷地境界線
-                //if (lineManager.TargetM == TargetType.Road && i == roadManager.SelectedIndex)
-                //{
-                //    if (roadManager.IsSelectingRoadBoundary)
-                //        pen = new Pen(Color.Red, 2f / scalef);      // 選択中
-                //    else
-                //        pen = new Pen(Color.LimeGreen, 2f / scalef); // 幅員入力後
-                //}
+                }
 
                 // 道路カテゴリーで選択中の敷地境界線
                 if (lineManager.TargetM == TargetType.Road && i == roadManager.SelectedIndex)
@@ -657,9 +875,9 @@ namespace WinFormsApp17
                 }
             }
 
-            //=========================
-            // Rotate : 仮選択矩形（青）
-            //=========================
+            //-------------------------
+            //  Paint : Rotate （仮線）
+            //-------------------------
             if (mode == MoveType.Rotate && selectIndex.IsFirstClicked)
             {
                 PointF p1 = selectIndex.FirstPoint.ToPointF();
@@ -684,6 +902,30 @@ namespace WinFormsApp17
                 {
                     DashStyle = System.Drawing.Drawing2D.DashStyle.Dash
                 };
+
+                e.Graphics.DrawRectangle(pen, x, y, w, h);
+            }
+
+            //-------------------------------------------
+            // Paint : RangeSelect（仮矩形）
+            //-------------------------------------------
+            if (mode == MoveType.RangeSelect &&
+                      rangeSelectManager.HasRange)
+            {
+                PointF p1 =
+                    rangeSelectManager.StartPoint.ToPointF();
+
+                PointF p2 =
+                    rangeSelectManager.EndPoint.ToPointF();
+
+                float x = Math.Min(p1.X, p2.X);
+                float y = Math.Min(p1.Y, p2.Y);
+                float w = Math.Abs(p1.X - p2.X);
+                float h = Math.Abs(p1.Y - p2.Y);
+
+                using var pen = new Pen(
+                    Color.DodgerBlue,/*DodgerBlue  Red*/
+                    1f / scalef);
 
                 e.Graphics.DrawRectangle(pen, x, y, w, h);
             }
@@ -766,9 +1008,9 @@ namespace WinFormsApp17
         //スペースキーが押されたとき
         private void Form1_KeyUp(object? sender, KeyEventArgs e)
         {
-            //============================================
+            //--------------------------------------------
             //  KeyUp : Dimension : 仮線 水平・垂直 切り替え
-            //============================================
+            //--------------------------------------------
             if (e.KeyCode == Keys.Space)
             {
                 // 寸法モード ＆ Ext1 のときだけ方向切替
@@ -780,9 +1022,9 @@ namespace WinFormsApp17
                     return;
                 }
 
-                //=============================
+                //----------------------------
                 // KeyUp : Draw 
-                //=============================
+                //----------------------------
                 if (form2.GetMoveType() != MoveType.Dimension)
                 {
                     snapMode = snapMode == SnapMode.Free
@@ -801,8 +1043,47 @@ namespace WinFormsApp17
             startPos = null;
             endPos = null;
             isFirstClick = false;
+  
+            // 複線UIはいったん非表示
+            labelFukusenDistance.Visible = false;
+            textFukusenDistance.Visible = false;
 
-            // Circle
+            //----------------------------
+            // OnModeChanged : Parallel
+            //----------------------------
+
+            // 複線モード
+            if (form2.GetMoveType() == MoveType.Parallel)
+            {
+                // 複線の途中操作を初期化
+                parallelManager.ResetOperation();
+
+                labelFukusenDistance.Visible = true;
+                textFukusenDistance.Visible = true;
+
+                decimal distance =
+                    parallelManager.GetOffsetDistance();
+
+                // 内部値が0なら、表示だけ空欄
+                textFukusenDistance.Text =
+                    distance == 0m
+                        ? ""
+                        : distance.ToString();
+
+                // フォーカスして全選択
+                textFukusenDistance.Focus();
+                textFukusenDistance.SelectAll();
+            }
+
+            // Parallel以外に切り替わったら赤い線を解除
+            if (form2.GetMoveType() != MoveType.Parallel)
+            {
+                parallelManager.Reset();
+            }
+
+            //---------------------------
+            // OnModeChanged : Circle
+            //---------------------------
             if (form2.GetMoveType() == MoveType.DrawCircle)
             {
                 if (circleForm == null || circleForm.IsDisposed)
@@ -814,7 +1095,7 @@ namespace WinFormsApp17
                     //  位置指定：Form2 の右・上端揃え
                     circleForm.Location = new Point(
                         form2.Right + 5,   // すぐ右
-                        form2.Top          // 上端揃え
+                        form2.Top + 27     // 上端揃え
                     );
 
                     circleForm.Show();
@@ -836,22 +1117,27 @@ namespace WinFormsApp17
                     circleForm = null;
                 }
             }
-            // Rotate
+
+            //-------------------------------------------
+            // OnModeChanged : RangeSelect
+            //-------------------------------------------
+
+            if (form2.GetMoveType() == MoveType.RangeSelect)
+            {
+                rangeSelectManager.Reset();
+                Invalidate();
+            }
+
+            //-------------------------------------------
+            // OnModeChanged : Rotate
+            //-------------------------------------------
+
             if (form2.GetMoveType() == MoveType.Rotate)
             {
                 rotateManager.Reset();
                 selectIndex.Reset();
             }
-            // Parallel 
-            if (form2.GetMoveType() == MoveType.Parallel)
-            {
-                parallelManager.SetOffsetDistance(form2.GetOffsetDistance);
-            }
-            // Parallel 以外に切り替わったら赤い線を解除
-            if (form2.GetMoveType() != MoveType.Parallel)
-            {
-                parallelManager.Reset();
-            }
+            
             // Corner 以外に切り替わったら状態クリア
             if (form2.GetMoveType() != MoveType.Corner)
             {
@@ -876,6 +1162,7 @@ namespace WinFormsApp17
             Invalidate();
         }
 
+
         //================================
         //   道路幅員　入力
         //================================
@@ -892,6 +1179,8 @@ namespace WinFormsApp17
         {
             if (copyingWidth)
                 return;
+            if (LoadingRoadWidth)
+                return;
 
             copyingWidth = true;
             RtextBox2.Text = RtextBox1.Text;   // 左を右へコピー
@@ -903,6 +1192,8 @@ namespace WinFormsApp17
         private void RtextBox2_TextChanged(object sender, EventArgs e)
         {
             if (copyingWidth)
+                return;
+            if (LoadingRoadWidth)
                 return;
 
             ApplyRoadWidth();
@@ -918,7 +1209,6 @@ namespace WinFormsApp17
                 roadManager.SetWidth(w1 * 1000m, w2 * 1000m);
             }
         }
-
         //================================
         //   画面座標 → 世界座標変換関数 
         //================================
@@ -1049,43 +1339,58 @@ namespace WinFormsApp17
             }
         }
 
-        protected override void OnKeyDown(KeyEventArgs e)
+        /* protected override void OnKeyDown(KeyEventArgs e)
+         {
+             base.OnKeyDown(e);
+
+             if (e.Handled) return;
+
+             switch (e.KeyCode)
+             {
+                 case Keys.H:
+                     form2.SelectDrawMode();
+                     break;
+
+                 case Keys.D:
+                     form2.SelectEraseMode();
+                     break;
+
+                 case Keys.F:
+                     form2.SelectParallelMode();
+                     break;
+
+                 case Keys.V:
+                     form2.SelectCornerMode();
+                     break;
+
+                 case Keys.S:   // 例：Dimension を M に割り当てるなら
+                     form2.SelectDimensionMode();
+                     break;
+
+                 case Keys.E:
+                     form2.SelectCircleMode();
+                     break;
+
+                 case Keys.T:
+                     form2.SelectTrimMode();
+                     break;
+             }
+         }*/
+
+        //===============================
+        //  ショートカットキーの登録
+        //===============================
+        private void InitializeShortcuts()
         {
-            base.OnKeyDown(e);
-
-            if (e.Handled) return;
-
-            switch (e.KeyCode)
-            {
-                case Keys.H:
-                    form2.SelectDrawMode();
-                    break;
-
-                case Keys.D:
-                    form2.SelectEraseMode();
-                    break;
-
-                case Keys.F:
-                    form2.SelectParallelMode();
-                    break;
-
-                case Keys.V:
-                    form2.SelectCornerMode();
-                    break;
-
-                case Keys.S:   // 例：Dimension を M に割り当てるなら
-                    form2.SelectDimensionMode();
-                    break;
-
-                case Keys.E:
-                    form2.SelectCircleMode();
-                    break;
-
-                case Keys.T:
-                    form2.SelectTrimMode();
-                    break;
-            }
+            shortcutActions[Keys.H] = () => form2.SelectDrawMode();
+            shortcutActions[Keys.D] = () => form2.SelectEraseMode();
+            shortcutActions[Keys.F] = () => form2.SelectParallelMode();
+            shortcutActions[Keys.V] = () => form2.SelectCornerMode();
+            shortcutActions[Keys.S] = () => form2.SelectDimensionMode();
+            shortcutActions[Keys.E] = () => form2.SelectCircleMode();
+            shortcutActions[Keys.T] = () => form2.SelectTrimMode();
         }
+
         public float GetScale()
         {
             return scalef;
@@ -1108,16 +1413,23 @@ namespace WinFormsApp17
 
             if (ofd.ShowDialog() == DialogResult.OK)
             {
-                string path = ofd.FileName;
+                try
+                {
+                    string path = ofd.FileName;
 
-                pdfImage = Image.FromFile(path);
+                    pdfImage?.Dispose();
+                    pdfImage = Image.FromFile(path);
 
-                MessageBox.Show($"読込OK  {pdfImage.Width} × {pdfImage.Height}");
+                    MessageBox.Show($"読込OK  {pdfImage.Width} × {pdfImage.Height}");
 
-                isJpegFirsted = true;
+                    isJpegFirsted = true;
 
-                Invalidate();
-
+                    Invalidate();
+                }
+                catch
+                {
+                    MessageBox.Show("画像が読み込める形式ではありません。JPEGまたはPNG画像を選択してください。");
+                }
             }
         }
 
@@ -1128,6 +1440,13 @@ namespace WinFormsApp17
             f.Show();
         }
 
+        private void 仮線設定ToolStripMenuItem_Click(object sender, EventArgs e)
+        {
+            FormKariSenSettei f = new FormKariSenSettei(makeKariSen);
+            f.Owner = this;
+            f.ShowDialog();
+            // OKが押されたら makeKariSen.SetbackFromSite / makeKariSen.SetbackFromRoad が更新されている
+        }
         private void 開くToolStripMenuItem_Click(object sender, EventArgs e)
         {
             projectFileManager.Open();
@@ -1164,6 +1483,36 @@ namespace WinFormsApp17
 
             textBoxScale.ReadOnly = true;
             textBoxScale.TabStop = false;
+        }
+
+        // 複線間隔を変数に格納
+        private void textFukusenDistance_TextChanged(object sender, EventArgs e)
+        {
+            if (decimal.TryParse(textFukusenDistance.Text, out decimal distance))
+            {
+                parallelManager.SetOffsetDistance(distance);
+            }
+        }
+
+
+        private void RtextBox2_TextChanged_1(object sender, EventArgs e)
+        {
+
+        }
+
+        private void label1_Click_1(object sender, EventArgs e)
+        {
+
+        }
+
+        private void Form1_Load(object sender, EventArgs e)
+        {
+
+        }
+
+        private void panelCommandOptions_Paint(object sender, PaintEventArgs e)
+        {
+
         }
     }
 }

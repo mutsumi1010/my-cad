@@ -6,7 +6,7 @@
         private readonly List<Dimension> dimFile;
         //private readonly float scalef;
 
-
+        
         // Undo 履歴（最大5）
         private Stack<(int index, PointDec start, PointDec end)> history
             = new Stack<(int, PointDec, PointDec)>(5);

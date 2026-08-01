@@ -165,9 +165,9 @@ namespace WinFormsApp17
             return index;
         }
 
-        //===============================
-        //   近い線を探す (decimal)
-        //===============================
+        //=========================================
+        //  クリック点から近い線を探す (decimal)
+        //=========================================
         // クリックポイント(Decimal)、scalef(float)をください。
         // クリックポイントに近い線のIndex番号(int)をリターンします。
         public int GetNearestLineIndex(PointDec click, float scalef)
@@ -185,6 +185,40 @@ namespace WinFormsApp17
 
                 if (d < minDist && d < hitDistWorld)
                 {
+                    minDist = d;
+                    index = i;
+                }
+            }
+
+            return index;
+        }
+
+        //=======================================================
+        //  クリック点から近い線を探す Dxfは含まない (decimal)
+        //=======================================================
+        // クリックポイント(Decimal)、scalef(float)をください。
+        // クリックポイントに近い線のIndex番号(int)をリターンします。
+        public int GetNearestLineIndexNoDxf(PointDec click, float scalef)
+        {
+            decimal minDist = 999999m;
+            int index = -1;
+
+            for (int i = 0; i < lineManager.decFile.Count; i++)
+            {
+                var l = lineManager.decFile[i];
+
+                if (l.Layer == 8)  // レイヤ8　DXF
+                    continue;
+
+                decimal d = DistancePointToSegment(click, l.start, l.end);
+
+                const float HitRadiusPx = 25f; // ヒット:10ピクセル約2.6ｍｍ
+                decimal hitDistWorld = (decimal)(HitRadiusPx / scalef);
+
+                if (d < minDist && d < hitDistWorld)
+                {
+                    if (l.Layer == 8)
+                        continue;
                     minDist = d;
                     index = i;
                 }
@@ -214,6 +248,46 @@ namespace WinFormsApp17
                     continue;
 
                 var l = lineManager.decFile[i];
+                decimal d = DistancePointToSegment(click, l.start, l.end);
+
+                const float HitRadiusPx = 25f;
+                decimal hitDistWorld = (decimal)(HitRadiusPx / scalef);
+
+                if (d < minDist && d < hitDistWorld)
+                {
+                    minDist = d;
+                    index = i;
+                }
+            }
+
+            return index;
+        }
+
+        //===============================
+        //   2番目の近い線を探す (decimal)
+        //===============================
+        // クリックポイント(Decimal)、scalef(float)をください。
+        // すでにセレクトされてる線のIndex(int)をください。
+        // クリックポイントに近い線のIndex番号(int)をリターンします。
+        public int GetNearestLineIndexSecondNoDxf(
+             PointDec click,
+             float scalef,
+             int baseIndex)
+        {
+            decimal minDist = decimal.MaxValue;
+            int index = -1;
+
+            for (int i = 0; i < lineManager.decFile.Count; i++)
+            {
+                // 1回目に選んだ線は除外
+                if (i == baseIndex)
+                    continue;
+
+                var l = lineManager.decFile[i];
+
+                if (l.Layer == 8)  // レイヤ8　DXF
+                    continue;
+
                 decimal d = DistancePointToSegment(click, l.start, l.end);
 
                 const float HitRadiusPx = 25f;
@@ -369,8 +443,12 @@ namespace WinFormsApp17
             decimal d = (x1 - x2) * (y3 - y4)
                       - (y1 - y2) * (x3 - x4);
 
-            if (d == 0)
-                return false; // 平行
+           // if (d == 0)
+           //     return false; // 平行
+
+            const decimal EPS = 0.0001m;
+            if (Math.Abs(d) < EPS)
+                return false;
 
             decimal px =
                 ((x1 * y2 - y1 * x2) * (x3 - x4)
@@ -379,6 +457,11 @@ namespace WinFormsApp17
             decimal py =
                 ((x1 * y2 - y1 * x2) * (y3 - y4)
                - (y1 - y2) * (x3 * y4 - y3 * x4)) / d;
+
+            //リミット
+            const decimal LIMIT = 100000000m;
+            if (Math.Abs(px) > LIMIT || Math.Abs(py) > LIMIT)
+                return false;
 
             ip = new PointDec(px, py);
             return true;

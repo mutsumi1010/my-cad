@@ -42,8 +42,15 @@
             pDF読込ToolStripMenuItem = new ToolStripMenuItem();
             ツールToolStripMenuItem = new ToolStripMenuItem();
             座標ファイルToolStripMenuItem = new ToolStripMenuItem();
+            設定ToolStripMenuItem = new ToolStripMenuItem();
+            仮線設定ToolStripMenuItem = new ToolStripMenuItem();
             textBoxScale = new TextBox();
+            labelRoadIntersection = new Label();
+            panelCommandOptions = new Panel();
+            textFukusenDistance = new TextBox();
+            labelFukusenDistance = new Label();
             menuStrip1.SuspendLayout();
+            panelCommandOptions.SuspendLayout();
             SuspendLayout();
             // 
             // labelRoadMessage
@@ -51,7 +58,7 @@
             labelRoadMessage.AutoSize = true;
             labelRoadMessage.BackColor = SystemColors.ControlLight;
             labelRoadMessage.Font = new Font("Yu Gothic UI", 13.8F, FontStyle.Regular, GraphicsUnit.Point, 128);
-            labelRoadMessage.Location = new Point(12, 9);
+            labelRoadMessage.Location = new Point(11, 96);
             labelRoadMessage.Name = "labelRoadMessage";
             labelRoadMessage.Size = new Size(311, 31);
             labelRoadMessage.TabIndex = 0;
@@ -62,7 +69,7 @@
             roadlabel2.AutoSize = true;
             roadlabel2.BackColor = SystemColors.ControlLight;
             roadlabel2.Font = new Font("Yu Gothic UI", 13.8F, FontStyle.Regular, GraphicsUnit.Point, 128);
-            roadlabel2.Location = new Point(12, 58);
+            roadlabel2.Location = new Point(11, 144);
             roadlabel2.Name = "roadlabel2";
             roadlabel2.Size = new Size(306, 31);
             roadlabel2.TabIndex = 0;
@@ -73,7 +80,7 @@
             Rlabel1.AutoSize = true;
             Rlabel1.BackColor = SystemColors.ControlLight;
             Rlabel1.Font = new Font("Yu Gothic UI", 12F, FontStyle.Regular, GraphicsUnit.Point, 128);
-            Rlabel1.Location = new Point(12, 99);
+            Rlabel1.Location = new Point(11, 209);
             Rlabel1.Name = "Rlabel1";
             Rlabel1.Size = new Size(112, 28);
             Rlabel1.TabIndex = 0;
@@ -83,7 +90,7 @@
             // RtextBox1
             // 
             RtextBox1.Font = new Font("Yu Gothic UI", 10.8F, FontStyle.Regular, GraphicsUnit.Point, 128);
-            RtextBox1.Location = new Point(130, 99);
+            RtextBox1.Location = new Point(130, 201);
             RtextBox1.Name = "RtextBox1";
             RtextBox1.Size = new Size(125, 31);
             RtextBox1.TabIndex = 1;
@@ -93,7 +100,7 @@
             Rlabel2.AutoSize = true;
             Rlabel2.BackColor = SystemColors.ControlLight;
             Rlabel2.Font = new Font("Yu Gothic UI", 12F, FontStyle.Regular, GraphicsUnit.Point, 128);
-            Rlabel2.Location = new Point(277, 102);
+            Rlabel2.Location = new Point(274, 209);
             Rlabel2.Name = "Rlabel2";
             Rlabel2.Size = new Size(112, 28);
             Rlabel2.TabIndex = 0;
@@ -103,19 +110,21 @@
             // RtextBox2
             // 
             RtextBox2.Font = new Font("Yu Gothic UI", 10.8F, FontStyle.Regular, GraphicsUnit.Point, 128);
-            RtextBox2.Location = new Point(395, 102);
+            RtextBox2.Location = new Point(384, 201);
             RtextBox2.Name = "RtextBox2";
             RtextBox2.Size = new Size(125, 31);
             RtextBox2.TabIndex = 1;
+            RtextBox2.TextChanged += RtextBox2_TextChanged_1;
             // 
             // menuStrip1
             // 
             menuStrip1.Font = new Font("Yu Gothic UI", 12F, FontStyle.Regular, GraphicsUnit.Point, 128);
             menuStrip1.ImageScalingSize = new Size(20, 20);
-            menuStrip1.Items.AddRange(new ToolStripItem[] { ファイルToolStripMenuItem, ツールToolStripMenuItem });
+            menuStrip1.Items.AddRange(new ToolStripItem[] { ファイルToolStripMenuItem, ツールToolStripMenuItem, 設定ToolStripMenuItem });
             menuStrip1.Location = new Point(0, 0);
             menuStrip1.Name = "menuStrip1";
-            menuStrip1.Size = new Size(1092, 36);
+            menuStrip1.Padding = new Padding(6, 3, 0, 3);
+            menuStrip1.Size = new Size(1182, 38);
             menuStrip1.TabIndex = 3;
             menuStrip1.Text = "menuStrip1";
             // 
@@ -168,21 +177,81 @@
             座標ファイルToolStripMenuItem.Text = "座標ファイル";
             座標ファイルToolStripMenuItem.Click += 座標ファイルToolStripMenuItem_Click;
             // 
+            // 設定ToolStripMenuItem
+            // 
+            設定ToolStripMenuItem.DropDownItems.AddRange(new ToolStripItem[] { 仮線設定ToolStripMenuItem });
+            設定ToolStripMenuItem.Name = "設定ToolStripMenuItem";
+            設定ToolStripMenuItem.Size = new Size(66, 32);
+            設定ToolStripMenuItem.Text = "設定";
+            // 
+            // 仮線設定ToolStripMenuItem
+            // 
+            仮線設定ToolStripMenuItem.Name = "仮線設定ToolStripMenuItem";
+            仮線設定ToolStripMenuItem.Size = new Size(178, 32);
+            仮線設定ToolStripMenuItem.Text = "仮線設定";
+            仮線設定ToolStripMenuItem.Click += 仮線設定ToolStripMenuItem_Click;
+            // 
             // textBoxScale
             // 
             textBoxScale.Anchor = AnchorStyles.Bottom | AnchorStyles.Right;
             textBoxScale.BackColor = SystemColors.ControlLight;
-            textBoxScale.Location = new Point(130, 195);
+            textBoxScale.Location = new Point(219, 343);
             textBoxScale.Name = "textBoxScale";
             textBoxScale.Size = new Size(125, 27);
             textBoxScale.TabIndex = 4;
             textBoxScale.TextChanged += textBoxScale_TextChanged;
             // 
+            // labelRoadIntersection
+            // 
+            labelRoadIntersection.AutoSize = true;
+            labelRoadIntersection.BackColor = SystemColors.Highlight;
+            labelRoadIntersection.Font = new Font("Yu Gothic UI", 13.8F, FontStyle.Regular, GraphicsUnit.Point, 128);
+            labelRoadIntersection.ForeColor = SystemColors.ControlLightLight;
+            labelRoadIntersection.Location = new Point(425, 96);
+            labelRoadIntersection.Name = "labelRoadIntersection";
+            labelRoadIntersection.Size = new Size(311, 31);
+            labelRoadIntersection.TabIndex = 0;
+            labelRoadIntersection.Text = "道路交点を右クリックしてください";
+            labelRoadIntersection.Visible = false;
+            labelRoadIntersection.Click += label1_Click_1;
+            // 
+            // panelCommandOptions
+            // 
+            panelCommandOptions.BackColor = SystemColors.Menu;
+            panelCommandOptions.Controls.Add(textFukusenDistance);
+            panelCommandOptions.Controls.Add(labelFukusenDistance);
+            panelCommandOptions.Location = new Point(151, 40);
+            panelCommandOptions.Name = "panelCommandOptions";
+            panelCommandOptions.Size = new Size(1208, 40);
+            panelCommandOptions.TabIndex = 5;
+            panelCommandOptions.Paint += panelCommandOptions_Paint;
+            // 
+            // textFukusenDistance
+            // 
+            textFukusenDistance.Location = new Point(116, 6);
+            textFukusenDistance.Name = "textFukusenDistance";
+            textFukusenDistance.Size = new Size(125, 27);
+            textFukusenDistance.TabIndex = 1;
+            textFukusenDistance.Visible = false;
+            // 
+            // labelFukusenDistance
+            // 
+            labelFukusenDistance.AutoSize = true;
+            labelFukusenDistance.Font = new Font("Yu Gothic UI", 12F, FontStyle.Regular, GraphicsUnit.Point, 128);
+            labelFukusenDistance.Location = new Point(16, 4);
+            labelFukusenDistance.Name = "labelFukusenDistance";
+            labelFukusenDistance.Size = new Size(92, 28);
+            labelFukusenDistance.TabIndex = 0;
+            labelFukusenDistance.Text = "複線間隔";
+            labelFukusenDistance.Visible = false;
+            // 
             // Form1
             // 
             AutoScaleDimensions = new SizeF(8F, 20F);
             AutoScaleMode = AutoScaleMode.Font;
-            ClientSize = new Size(1092, 655);
+            BackColor = SystemColors.ControlLightLight;
+            ClientSize = new Size(1182, 803);
+            Controls.Add(panelCommandOptions);
             Controls.Add(textBoxScale);
             Controls.Add(menuStrip1);
             Controls.Add(RtextBox2);
@@ -190,11 +259,15 @@
             Controls.Add(Rlabel2);
             Controls.Add(Rlabel1);
             Controls.Add(roadlabel2);
+            Controls.Add(labelRoadIntersection);
             Controls.Add(labelRoadMessage);
             Name = "Form1";
             Text = "Form1";
+            Load += Form1_Load;
             menuStrip1.ResumeLayout(false);
             menuStrip1.PerformLayout();
+            panelCommandOptions.ResumeLayout(false);
+            panelCommandOptions.PerformLayout();
             ResumeLayout(false);
             PerformLayout();
         }
@@ -215,6 +288,12 @@
         private ToolStripMenuItem 開くToolStripMenuItem;
         private ToolStripMenuItem 上書保存ToolStripMenuItem;
         private ToolStripMenuItem 名前を付けて保存ToolStripMenuItem;
+        private ToolStripMenuItem 設定ToolStripMenuItem;
+        private ToolStripMenuItem 仮線設定ToolStripMenuItem;
         private TextBox textBoxScale;
+        public Label labelRoadIntersection;
+        private Panel panelCommandOptions;
+        private Label labelFukusenDistance;
+        private TextBox textFukusenDistance;
     }
 }

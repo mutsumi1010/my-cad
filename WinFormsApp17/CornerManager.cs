@@ -56,6 +56,12 @@ namespace WinFormsApp17
             for (int i = 0; i < lineManager.decFile.Count; i++)
             {
                 var l = lineManager.decFile[i];
+
+                if (l.Layer == 8)   // DXF背景線は対象外
+                    continue;
+                if (l.Layer == 9)
+                    continue;
+
                 decimal d = DistancePointToSegment(click, l.start, l.end);
 
                 const float HitRadiusPx = 12f; // ヒット:10ピクセル約2.6ｍｍ

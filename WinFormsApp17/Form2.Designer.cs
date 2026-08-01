@@ -45,6 +45,7 @@
             button14 = new Button();
             button15 = new Button();
             btnUseBoundary = new Button();
+            btnRange = new Button();
             SuspendLayout();
             // 
             // button1
@@ -222,11 +223,22 @@
             btnUseBoundary.UseVisualStyleBackColor = true;
             btnUseBoundary.Click += btnUseBoundary_Click;
             // 
+            // btnRange
+            // 
+            btnRange.Font = new Font("Yu Gothic UI", 10.8F);
+            btnRange.Location = new Point(74, 188);
+            btnRange.Name = "btnRange";
+            btnRange.Size = new Size(56, 40);
+            btnRange.TabIndex = 0;
+            btnRange.Text = "範囲";
+            btnRange.UseVisualStyleBackColor = true;
+            btnRange.Click += btnRange_Click;
+            // 
             // Form2
             // 
             AutoScaleDimensions = new SizeF(8F, 20F);
             AutoScaleMode = AutoScaleMode.Font;
-            BackColor = SystemColors.Window;
+            BackColor = SystemColors.Menu;
             ClientSize = new Size(148, 900);
             Controls.Add(btnUseBoundary);
             Controls.Add(button11);
@@ -243,6 +255,7 @@
             Controls.Add(button6);
             Controls.Add(button5);
             Controls.Add(button2);
+            Controls.Add(btnRange);
             Controls.Add(button1);
             Name = "Form2";
             Text = "Form2";
@@ -268,5 +281,6 @@
         private Button button14;
         private Button button15;
         private Button btnUseBoundary;
+        private Button btnRange;
     }
 }

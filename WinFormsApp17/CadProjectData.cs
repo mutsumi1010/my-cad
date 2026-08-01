@@ -30,6 +30,32 @@
         // 道路
         public string RoadWidth { get; set; } = "";            // 道路幅員
         public string RoadFloorAreaRatio { get; set; } = "";   // 道路による容積率
+
+        // 道路幅員
+        //
+        // Key   = 敷地境界線のdecFile番号
+        // Value = 道路幅員
+        public Dictionary<int, RoadWidthSaveData> RoadWidthMap
+        {
+            get;
+            set;
+        }
+            =
+            new Dictionary<int, RoadWidthSaveData>();
+
+
+
+        // 道路表示線
+        //
+        // Key   = 敷地境界線のdecFile番号
+        // Value = 道路線のdecFile番号一覧
+        public Dictionary<int, List<int>> RoadVisualMap
+        {
+            get;
+            set;
+        }
+        =
+        new Dictionary<int, List<int>>();
     }
 
     public class LineSaveData
@@ -39,5 +65,11 @@
         public decimal EndX { get; set; }
         public decimal EndY { get; set; }
         public int Layer { get; set; }
+    }
+
+    public class RoadWidthSaveData
+    {
+        public decimal W1 { get; set; }
+        public decimal W2 { get; set; }
     }
 }

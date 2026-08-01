@@ -15,7 +15,8 @@ namespace WinFormsApp17
         public bool DirectionPositive { get; private set; } = true;
 
         private PointDec dragStartPointD;
-        private decimal offsetDistance = 0m;
+
+        private decimal offsetDistance = 0;  //オフセットしたい距離 数値指定の場合
 
         //private readonly decimal scaledec;  //今は定数
 
@@ -26,10 +27,18 @@ namespace WinFormsApp17
             this.getScale = getScale;
         }
 
+        //==============================================
+        // SetOffsetDistance
+        //==============================================
         // ===== オフセット距離セット メソッド =====
         public void SetOffsetDistance(decimal dist)
         {
-            this.offsetDistance = dist;
+             this.offsetDistance = dist;
+        }
+        // ===== オフセット距離GET メソッド =====
+        public decimal GetOffsetDistance()
+        {
+            return offsetDistance;
         }
 
         //==============================================
@@ -82,32 +91,104 @@ namespace WinFormsApp17
         public bool OnMouseClick(PointDec worldPos)
         {
             // すでにプレビュー中 → 確定処理
-            if (IsCopyPreview && SelectedIndex >= 0)
+            //if (IsCopyPreview && SelectedIndex >= 0)
+            if (IsCopyPreview &&
+                SelectedIndex >= 0 &&
+                offsetDistance != 0m)
             {
-                var line = lineManager.decFile[SelectedIndex];
+                   var line = lineManager.decFile[SelectedIndex];
 
+                   PointDec p1 = line.start;
+                   PointDec p2 = line.end;
+
+                   var (offsetX, offsetY) =
+                       GetNormalOffset(p1, p2, offsetDistance, DirectionPositive);
+
+                   var newStart = new PointDec(p1.x + offsetX, p1.y + offsetY);
+                   var newEnd = new PointDec(p2.x + offsetX, p2.y + offsetY);
+
+                   //
+                   //  リストにラインを追加
+                   //
+                   lineManager.AddLine(newStart, newEnd);
+
+                   IsCopyPreview = false;
+                   SelectedIndex = -1;
+                   return true;
+               } 
+
+            if (SelectedIndex >= 0)
+            {
+                // 基準線の取り出し
+                var line = lineManager.decFile[SelectedIndex];
+                // 基準線のstart と　end
                 PointDec p1 = line.start;
                 PointDec p2 = line.end;
 
+                // クリック点を通る平行線を作るための移動ベクトルを取得
                 var (offsetX, offsetY) =
-                    GetNormalOffset(p1, p2, offsetDistance, DirectionPositive);
+                    GetOffsetToPassThroughPoint(p1, p2, worldPos);
 
-                var newStart = new PointDec(p1.x + offsetX, p1.y + offsetY);
-                var newEnd = new PointDec(p2.x + offsetX, p2.y + offsetY);
+                var newStart = new PointDec(
+                    p1.x + offsetX,
+                    p1.y + offsetY
+                );
 
-                //
-                //  リストにラインを追加
-                //
+                var newEnd = new PointDec(
+                    p2.x + offsetX,
+                    p2.y + offsetY
+                );
+
                 lineManager.AddLine(newStart, newEnd);
 
                 IsCopyPreview = false;
                 SelectedIndex = -1;
+
                 return true;
             }
 
-            // 線の選択
+
+            // 単線を選択してリターン
             SelectedIndex = SelectLine(worldPos);
-            return (SelectedIndex >= 0);
+                return (SelectedIndex >= 0);
+        }
+
+        //==============================================
+        // 指定した点を通る平行線を作るための
+        // 法線方向の移動ベクトルを求める
+        //==============================================
+        private (decimal offsetX, decimal offsetY)
+            GetOffsetToPassThroughPoint(
+                PointDec lineStart,
+                PointDec lineEnd,
+                PointDec clickPoint)
+        {
+            decimal dx = lineEnd.x - lineStart.x;
+            decimal dy = lineEnd.y - lineStart.y;
+
+            decimal lengthSquared = dx * dx + dy * dy;
+
+            // 始点と終点が同じ場合
+            if (lengthSquared == 0)
+                return (0m, 0m);
+
+            // クリック点を基準線へ投影するための係数
+            // 線分ではなく、基準線を無限に延長した直線へ投影する
+            decimal t =
+                ((clickPoint.x - lineStart.x) * dx
+                + (clickPoint.y - lineStart.y) * dy)
+                / lengthSquared;
+
+            // 基準線上の垂直投影点
+            decimal projectionX = lineStart.x + t * dx;
+            decimal projectionY = lineStart.y + t * dy;
+
+            // 投影点からクリック点までのベクトル
+            // これが基準線に対する法線方向の移動量
+            decimal offsetX = clickPoint.x - projectionX;
+            decimal offsetY = clickPoint.y - projectionY;
+
+            return (offsetX, offsetY);
         }
 
         //==============================================
@@ -217,6 +298,15 @@ namespace WinFormsApp17
             decimal dx = p1.x - p2.x;
             decimal dy = p1.y - p2.y;
             return (decimal)Math.Sqrt((double)(dx * dx + dy * dy));
+        }
+
+        //==============================================
+        // 複線操作を最初の状態へ戻す
+        //==============================================
+        public void ResetOperation()
+        {
+            SelectedIndex = -1;
+            IsCopyPreview = false;
         }
     }
 }

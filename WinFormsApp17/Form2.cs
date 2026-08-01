@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Drawing;
 using System.Windows.Forms;
+using static System.Windows.Forms.DataFormats;
 
 namespace WinFormsApp17
 {
@@ -23,6 +24,7 @@ namespace WinFormsApp17
         DrawCircle = 6,
         Trim = 7,
         Rotate,
+        RangeSelect   //範囲選択
     }
     //===============================
     //   Form2 クラス
@@ -39,6 +41,7 @@ namespace WinFormsApp17
         public event Action<TargetType>? TargetChanged;
         public event Action? BackgroundToggleClicked;
 
+        // parallel で使用
         public decimal GetOffsetDistance { get; private set; } = 0;
 
         public MoveType GetMoveType() => moveType;
@@ -53,10 +56,7 @@ namespace WinFormsApp17
         public Form2()
         {
             InitializeComponent();
-            // 今フォーカスをもっているコントロールを解除する
-            // this:Form ActiveContrl:WinFormsがもっているプロパティ
             this.Shown += (s, e) => this.ActiveControl = null;
-            this.AutoScaleMode = AutoScaleMode.Font;
             this.moveType = MoveType.None;
             this.TopLevel = false;
             this.FormBorderStyle = FormBorderStyle.None;
@@ -84,6 +84,7 @@ namespace WinFormsApp17
             button13.ForeColor = c; // 伸縮
             button14.ForeColor = c; // 回転
             btnUseBoundary.ForeColor = c; // 用途境界線
+            btnRange.ForeColor = c; // 範囲選択
         }
         //----------------------------
         //  文字　黒
@@ -100,22 +101,28 @@ namespace WinFormsApp17
             button12.ForeColor = c;
             button13.ForeColor = c;
             button14.ForeColor = c;
+            btnRange.ForeColor = c; // 範囲選択
             btnUseBoundary.ForeColor = c; // 用途境界線
         }
 
+        //===============================
+        //   セットアクティブボタン
+        //===============================
         private void SetActiveButton(Button btn)
         {
-
+            //ひとつ前までアクティブだったボタンを元に戻す処理
             if (activeButton != null)
             {
-                activeButton.BackColor = SystemColors.Control;
-                activeButton.ForeColor = SystemColors.ControlText;
+                activeButton.BackColor = SystemColors.Control;     //Back背景：普通の色
+                activeButton.ForeColor = SystemColors.ControlText; //ForeColor文字の色 : 黒文字
             }
 
             activeButton = btn;
             activeButton.BackColor = Color.DodgerBlue;
             activeButton.ForeColor = Color.White;
 
+            // ターゲットボタン
+            // button9 敷地 button10 道路　button11 建物 
             if (btn == button9 || btn == button10 || btn == button11)
             {
                 if (activeTargetButton != null && activeTargetButton != btn)
@@ -182,25 +189,13 @@ namespace WinFormsApp17
             LoadClicked?.Invoke();
         }
 
-        private void Button5_Click(object sender, EventArgs e)
+          private void Button5_Click(object sender, EventArgs e)
         {
             if (!IsTargetSelected()) return;
-            if (currentTarget == TargetType.Road) return;
 
             SetActiveButton((Button)sender);
-            ModeChanged?.Invoke();
 
-            using (Form3 f3 = new Form3())
-            {
-                if (f3.ShowDialog() == DialogResult.OK)
-                {
-                    GetOffsetDistance = f3.OffsetValue;
-                    moveType = MoveType.Parallel;
-                    ModeChanged?.Invoke();
-                    return;
-                }
-            }
-            moveType = MoveType.Draw;
+            moveType = MoveType.Parallel;
             ModeChanged?.Invoke();
         }
 
@@ -259,7 +254,11 @@ namespace WinFormsApp17
         }
 
 
-        //---------カテゴリ-------------------
+        //---------カテゴリ ターゲット---------
+        //  button9    Site
+        //  button10   Road
+        //  button11   Building
+        //-----------------------------------
 
         private void button9_Click(object sender, EventArgs e)
         {
@@ -277,8 +276,8 @@ namespace WinFormsApp17
         {
             currentTarget = TargetType.Road;     // 道路
             SetActiveButton((Button)sender);
-          SetToolButtonsInitialColor();
- 
+            SetToolButtonsInitialColor();
+
             // 用途境OFF
             isUseBoundaryMode = false;
             btnUseBoundary.BackColor = SystemColors.Control;
@@ -366,6 +365,20 @@ namespace WinFormsApp17
                 btnUseBoundary.ForeColor = SystemColors.ControlText;
             }
 
+        }
+
+ 
+        private void btnRange_Click(object sender, EventArgs e)
+        {
+            if (!IsTargetSelected()) return;
+
+            if (currentTarget == TargetType.Road) return;
+
+            SetActiveButton((Button)sender);
+
+            moveType = MoveType.RangeSelect;
+
+            ModeChanged?.Invoke();
         }
     }
 }

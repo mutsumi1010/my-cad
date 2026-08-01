@@ -37,7 +37,7 @@ namespace WinFormsApp17
             //　1回目クリック インデックスがとれたかどうかを返す
             if (selectedIndex < 0)
             {
-                selectedIndex = function.GetNearestLineIndex(world, scalef);
+                selectedIndex = function.GetNearestLineIndexNoDxf(world, scalef);
                 if (selectedIndex < 0)
                     return false;
 
@@ -54,7 +54,7 @@ namespace WinFormsApp17
 
             if (isRightClick)
             {
-                int secondLineIndex = function.GetNearestLineIndexSecond(
+                int secondLineIndex = function.GetNearestLineIndexSecondNoDxf(
                     world, scalef, selectedIndex);
 
                 int secondCircleIndex = function.GetNearestCircleIndex(
